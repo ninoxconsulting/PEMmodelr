@@ -1,0 +1,19 @@
+Package: PEMmodelr
+Title: This sub-package runs machine learning models for the predictive ecosystem mapping (PEM) workflow
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Genevieve", "Perkins", , "gperkins@ninoxconsulting.ca", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-2663-5904")),
+    person("Will", "McKenzie", , "Will.MacKenzie@gov.bc.ca", role = "aut"),      
+    person("Kiri", "Daust", , "kiri.daust@gov.bc.ca", role = "aut"),
+    person("Andy", "Teucher", , "andy@andyteucher.ca", role = "aut",
+           comment = c(ORCID = "0000-0002-7840-692X")),
+    person("Province of British Columbia", role = "cph")
+  )
+Description: PEMmodelr is a subpackage of "PEMr" and forms part of the workflow to 
+  develop Predictive Ecosystem Maps (PEM). Specifically this package runs machine learning 
+  models based on data generated and collected using the PEMprepr and PEMsamplr subpackages. 
+License: Apache License (== 2.0) | file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
