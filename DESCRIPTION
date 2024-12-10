@@ -14,6 +14,15 @@ Description: PEMmodelr is a subpackage of "PEMr" and forms part of the workflow 
   develop Predictive Ecosystem Maps (PEM). Specifically this package runs machine learning 
   models based on data generated and collected using the PEMprepr and PEMsamplr subpackages. 
 License: Apache License (== 2.0) | file LICENSE
+Imports:
+  PEMprepr,
+  dplyr,
+  cli,
+  fs
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+Remotes:
+    ninoxconsulting/PEMprepr,
+Depends:
+    R (>= 4.1)
