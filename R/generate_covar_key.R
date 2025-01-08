@@ -21,8 +21,7 @@ generate_covar_key <- function(
     att_pts,
     overwrite = FALSE,
     out_dir = PEMprepr:::read_fid()$dir_30_model$path_rel,
-    out_name = "covar_key.csv"){
-
+    out_name = "covar_key.csv") {
   # testing
   #  overwrite = TRUE
   ##  out_dir = PEMprepr::read_fid()$dir_30_model$path_rel
@@ -31,13 +30,13 @@ generate_covar_key <- function(
 
 
   # check if input is an sf object
-  if(!inherits(att_pts, "sf")){
+  if (!inherits(att_pts, "sf")) {
     cli::cli_abort("att_pts must be an sf object")
     return()
   }
 
 
-  if(!overwrite & fs::file_exists(fs::path(out_dir, out_name))){
+  if (!overwrite & fs::file_exists(fs::path(out_dir, out_name))) {
     cli::cli_abort("covariate key file already exists, set overwrite = TRUE to overwrite")
     return()
   }
@@ -47,12 +46,12 @@ generate_covar_key <- function(
   core_names <- c(
     "id", "fnf", "x", "y", "bgc_cat", "data_type",
     "mapunit1", "mapunit2", "position", "transect_id", "tid",
-    "slice","geom","geometry"
+    "slice", "geom", "geometry"
   )
 
   extra_names <- c(
     "order", "point_type", "observer", "transition", "struc_stage",
-    "struc_mod", "date_ymd", "time_hms", "edatope", "comments", "photos", "ID","lyr.1"
+    "struc_mod", "date_ymd", "time_hms", "edatope", "comments", "photos", "ID", "lyr.1"
   )
 
   dem_names <- c(
@@ -68,27 +67,31 @@ generate_covar_key <- function(
     "sinkroute", "sinksfilled", "aspect",
     "gencurve", "slope", "totcurve",
     "slength", "flowlength1", "tca1", "twi",
-    "tcatchment", "tpi", "tri", "elevation","channelsnetwork","flowpathlenTD"
+    "tcatchment", "tpi", "tri", "elevation", "channelsnetwork", "flowpathlenTD"
   )
 
-  structure_name <- c( "p10_mosaic_rproj" ,    "p20_mosaic_rproj",
-                       "p25_mosaic_rproj" , "p50_mosaic_rproj",
-                       "p75_mosaic_rproj", "p80_mosaic_rproj" ,
-                       "p85_mosaic_rproj", "p90_mosaic_rproj","p95_mosaic_rproj",
-                       "p05_mosaic_rproj","p15_mosaic_rproj","p30_mosaic_rproj",
-                       "cov_gap_mosaic_rproj","dns_gap_mosaic_rproj",
-                       "vc3_mosaic",   "p98_mosaic_rproj")
+  structure_name <- c(
+    "p10_mosaic_rproj", "p20_mosaic_rproj",
+    "p25_mosaic_rproj", "p50_mosaic_rproj",
+    "p75_mosaic_rproj", "p80_mosaic_rproj",
+    "p85_mosaic_rproj", "p90_mosaic_rproj", "p95_mosaic_rproj",
+    "p05_mosaic_rproj", "p15_mosaic_rproj", "p30_mosaic_rproj",
+    "cov_gap_mosaic_rproj", "dns_gap_mosaic_rproj",
+    "vc3_mosaic", "p98_mosaic_rproj"
+  )
 
 
   sat_name <- c("red", "green", "blue", "nir", "swir1", "swir2")
 
 
   # add covariates that will be generated in the next steps
-  covars <- tibble::as_tibble(c(names(att_pts),"id", "fnf", "x", "y", "bgc_cat",
-                                "position","geom"))
+  covars <- tibble::as_tibble(c(
+    names(att_pts), "id", "fnf", "x", "y", "bgc_cat",
+    "position", "geom"
+  ))
 
-  names(covars)<- "value"
-  covars$type = NULL
+  names(covars) <- "value"
+  covars$type <- NULL
 
   covars <- covars |>
     dplyr::mutate(type = dplyr::case_when(
@@ -96,10 +99,10 @@ generate_covar_key <- function(
       value %in% extra_names ~ "extra",
       value %in% dem_names ~ "dem",
       value %in% structure_name ~ "structure",
-      value %in% sat_name ~ "satellite",)
-    )
+      value %in% sat_name ~ "satellite",
+    ))
 
-  if(anyNA(unique(covars$type))){
+  if (anyNA(unique(covars$type))) {
     cli::cli_alert_warning("Some covariates are missing covariate type, pleae review and edit output file: {.path { out_dir}/{ out_name}} before proceeding with modelling")
   }
 
@@ -107,4 +110,3 @@ generate_covar_key <- function(
 
   return(covars)
 }
-
