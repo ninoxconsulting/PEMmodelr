@@ -16,6 +16,8 @@ Description: PEMmodelr is a subpackage of "PEMr" and forms part of the workflow 
 License: Apache License (== 2.0) | file LICENSE
 Imports:
   PEMprepr,
+  utils,
+  tibble,
   dplyr,
   cli,
   fs
