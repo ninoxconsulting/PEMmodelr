@@ -2,5 +2,6 @@
 
 export(generate_covar_key)
 export(prep_tps)
+export(reduce_features)
 export(set_mapunits)
 importFrom(rlang,.data)

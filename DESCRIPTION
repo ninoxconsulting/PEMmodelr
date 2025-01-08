@@ -18,6 +18,8 @@ BugReports: https://github.com/ninoxconsulting/PEMmodelr/issues
 Imports:
   PEMprepr,
   sf,
+  terra,
+  caret,
   rlang,
   stringr,
   utils,
