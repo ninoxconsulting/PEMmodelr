@@ -31,9 +31,10 @@ Reduce the number of features by removing highly correlated covariates
 \examples{
 \dontrun{
 reduce_features(mcols,
-covarkey = read.csv(fs::path(PEMprepr::read_fid()$dir_30_model$path_rel, "covar_key.csv")),
-covar_dir = fs::path(PEMprepr::read_fid()$dir_1020_covariates$path_rel, "5m"),
-covtype = c("dem", "satellite"),
-cutoff = 0.90)
+  covarkey = read.csv(fs::path(PEMprepr::read_fid()$dir_30_model$path_rel, "covar_key.csv")),
+  covar_dir = fs::path(PEMprepr::read_fid()$dir_1020_covariates$path_rel, "5m"),
+  covtype = c("dem", "satellite"),
+  cutoff = 0.90
+)
 }
 }

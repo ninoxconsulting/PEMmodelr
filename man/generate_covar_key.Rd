@@ -30,7 +30,9 @@ the next steps of modelling.
 }
 \examples{
 \dontrun{
-covkey <- generate_covar_key(att_pts,overwrite = FALSE,
-out_dir = PEMprepr::read_fid()$dir_30_model$path_rel, out_name = "covar_key.csv")
+covkey <- generate_covar_key(att_pts,
+  overwrite = FALSE,
+  out_dir = PEMprepr::read_fid()$dir_30_model$path_rel, out_name = "covar_key.csv"
+)
 }
 }
