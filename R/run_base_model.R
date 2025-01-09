@@ -21,6 +21,7 @@ run_base_model <- function(
     use_neighbours = FALSE,
     detailed_output = TRUE,
     out_dir = NA) {
+
   model_bgc <- lapply(names(bgc_pts_subzone), function(i) {
     # i <- names(bgc_pts_subzone[1])
     tdat <- bgc_pts_subzone[[i]]
