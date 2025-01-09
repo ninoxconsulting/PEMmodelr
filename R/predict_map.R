@@ -34,7 +34,7 @@ predict_map <- function(model, out_dir, tile_dir, rstack, probability = FALSE){
 
     # create tracking message
     t <- terra::rast(file.path(i))  ## read in tile
-    cli::cli_alert_info("working on {{out_name}} of {{length(ntiles)}}")
+    cli::cli_alert_info("working on {out_name} of {length(ntiles)}")
     cli::cli_alert_info("... loading data ...")
 
     #check if blank tile
@@ -105,7 +105,7 @@ predict_map <- function(model, out_dir, tile_dir, rstack, probability = FALSE){
     ## * report progress -----
     a <- a + 1
     prog <- round(a/ta*100,0)
-    cli::cli_alert_info("{{{prog}} % complete}")
+    cli::cli_alert_info("{prog} % complete")
 
   }
 
@@ -115,7 +115,6 @@ predict_map <- function(model, out_dir, tile_dir, rstack, probability = FALSE){
   rsrc <- terra::sprc(r_tiles)
   m <- terra::mosaic(rsrc, fun = "min")
   terra::writeRaster(m, fs::path(out_dir, "best_map.tif"))
-
 
   if(probability == TRUE){
     r_tiles <- list.files(fs::path(out_dir,"probability"), pattern = ".tif$", full.names = TRUE)
