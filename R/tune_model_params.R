@@ -73,5 +73,5 @@ tune_model_params <- function(
     utils::write.csv(out, fs::path(out_bgc_dir, "best_tuning.csv"))
   })
 
-  return(out)
+  return(invisible(out_dir))
 }
