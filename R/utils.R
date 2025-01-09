@@ -13,7 +13,6 @@ select_pure_training <- function(tps) {
 }
 
 
-
 .filter_min_mapunits <- function(tpts, min_no){
 
   if("position" %in% names(tpts)) {
