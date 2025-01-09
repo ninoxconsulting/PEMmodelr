@@ -1,0 +1,147 @@
+#' Run the basic model
+#'
+#' @param train_data data table containing the training data set
+#' @param fuzz_matrix data table with fuzzy metrics
+#' @param mtry numeric. This is the output based on output of hyperparamter model tuning (default = ??)
+#' @param min_n numeric. This is the output based on output of hyperparamter model tuning (default = ??)
+#' @param use.neighbours if you want to incluse all neighbours in the calculation
+#' @param detailed_output OPTIONAL:TRUE/FALSE if you want to output all raw values this is used to determine optimum theta values
+#' @param out_dir OPTIONAL: only needed if detailed_output = TRUE. location of filepath there detailed outputs to be stored
+#' @return datatable of accuracy metric
+#' @export
+#' @examples
+#' \dontrun{
+#' base_model(train_pts, fuzz_matrix, mtry = 14, min_n = 7, use.neighbours = TRUE,
+#' detailed_output = TRUE, outdir)
+#'}
+base_model <- function(train_data,
+                           fuzz_matrix,
+                           mtry = 14,
+                           min_n = 7,
+                           use.neighbours = TRUE,
+                           detailed_output = TRUE,
+                           out_dir){
+
+
+  # training set - train only on pure calls
+  ref_dat <- train_data |>
+    dplyr::filter(!is.na(.data$slice)) |>
+    dplyr::mutate(mapunit1 = as.factor(.data$mapunit1),
+                  slice = as.factor(.data$slice))
+  print("Training raw data models...")
+
+  munits <- unique(ref_dat$mapunit1)
+
+  # place holder to catch non-forest within a forest model
+
+  if("forest" %in% munits){
+    nf_mapunits <- NA
+  } else {
+    nf_mapunits <- grep(munits, pattern = "_\\d", value = TRUE, invert = TRUE)
+  }
+
+
+  slices <- unique(ref_dat$slice) |>  droplevels()
+
+  # check the no of slices
+  if(length(slices)<2){ # switching to transect iteration instead of slices
+
+    ref_dat_key <- ref_dat |>
+      dplyr::select(c(.data$tid)) |>
+      dplyr::distinct() |>
+      dplyr::mutate(slice = as.factor(seq(1,length(.data$tid),1)))
+
+    ref_dat <- ref_dat |>
+      dplyr::select(-.data$slice) |>
+      dplyr::left_join(ref_dat_key)
+
+    slices <- unique(ref_dat$slice) |> droplevels()
+
+  }
+
+  ref_acc <- purrr::map(levels(slices), function(k) {
+
+    #k = levels(slices)[3]
+
+    #create training set
+    ref_train <- ref_dat |>
+      dplyr::filter(!.data$slice %in% k)|>
+      dplyr::filter(is.na(.data$mapunit2)) |> # train only on pure calls
+      dplyr::filter(.data$position == "Orig") |>
+      dplyr::select(-.data$id, -.data$slice, -.data$mapunit2, -.data$position, -.data$transect_id) |>
+      droplevels()
+
+    MU_count <- ref_train |>  dplyr::count(.data$mapunit1) |>  dplyr::filter(.data$n > 10)
+
+    ref_train <- ref_train |>  dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
+      droplevels()
+
+    if (use.neighbours) {
+      # test set
+      ref_test <- ref_dat |>
+        dplyr::filter(.data$slice %in% k) |>
+        dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
+        droplevels()
+
+    }else{
+
+      ref_test <- ref_dat |>
+        dplyr::filter(.data$slice %in% k) |>
+        dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
+        dplyr::filter(.data$position == "Orig") |>
+        droplevels()
+
+    }
+
+    ref_id <- ref_test |>  dplyr::select(.data$id, .data$mapunit1, .data$mapunit2 )
+
+    null_recipe <-  recipes::recipe(mapunit1 ~ ., data = ref_train) |>
+      recipes::update_role(.data$tid, new_role = "id variable")
+
+    randf_spec <- parsnip::rand_forest(mtry = mtry, min_n = min_n, trees = 151) |>
+      parsnip::set_mode("classification") |>
+      parsnip::set_engine("ranger", importance = "permutation", verbose = FALSE)
+
+    pem_workflow <- workflows::workflow() |>
+      workflows::add_recipe(null_recipe)|>
+      workflows::add_model(randf_spec)
+
+    ref_mod <- parsnip::fit(pem_workflow, ref_train)
+
+    final_fit <- tune::extract_fit_parsnip(ref_mod)
+
+    oob  <- round(ref_mod$fit$fit$fit$prediction.error, 3)
+
+    preds <- terra::predict(ref_mod, ref_test)
+
+    pred_all <- cbind(ref_id,.pred_class = preds$.pred_class)
+
+    pred_all <- pred_all |> dplyr::mutate(mapunit1 = as.character(.data$mapunit1),
+                                          mapunit2 = as.character(.data$mapunit2),
+                                          .pred_class = as.character(.data$.pred_class))
+
+    # switch out the predicted Nf units for "nonfor" catergory.
+    pred_all <- pred_all |>
+      dplyr::mutate(mapunit1 = ifelse(.data$mapunit1  %in% nf_mapunits, "nonfor", .data$mapunit1 ),
+                    mapunit2 = ifelse(.data$mapunit2 %in% nf_mapunits, "nonfor", .data$mapunit2) ,
+                    .pred_class = ifelse(.data$.pred_class  %in% nf_mapunits, "nonfor", .data$.pred_class ))
+
+    # harmonize factor levels
+    pred_all <- .harmonize_factors(pred_all)
+    pred_all$mapunit2 = as.factor(pred_all$mapunit2)
+
+    print(paste0("generating accuracy metrics for slice:",k))
+
+    if(detailed_output == TRUE){
+      saveRDS(pred_all, fs::path(out_dir, paste0("predictions_", k)))
+    }
+
+    acc <- acc_metrics(pred_all, fuzzmatrx = fuzz_matrix) |>
+      dplyr::mutate(slice = k,
+                    oob = oob)
+
+  }) |> dplyr::bind_rows()
+
+  return(ref_acc)
+
+}
