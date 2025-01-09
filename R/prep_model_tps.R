@@ -24,20 +24,19 @@ prep_model_tps <- function(
     model_type = "fnf", # fnf or f or nf
     out_dir = NULL,
     outname = "model_input_pts.rds") {
-
   # check inputs
 
-  #check if model type is within the available options
+  # check if model type is within the available options
   if (!model_type %in% c("fnf", "f", "nf")) {
     cli::cli_abort("model_type must be one of 'fnf', 'f' or 'nf'")
   }
 
-  #check if prepped_points is a csv object
+  # check if prepped_points is a csv object
   if (!is.data.frame(prepped_points)) {
     cli::cli_abort("prepped_points must be a csv object")
   }
 
-  #check if covars is a character string
+  # check if covars is a character string
   if (!is.character(covars)) {
     cli::cli_abort("covars must be a character string")
   }
@@ -53,8 +52,10 @@ prep_model_tps <- function(
     bgc_pts_subzone <- lapply(model_type, function(i) {
       tdat <- prepped_points |>
         dplyr::mutate(slice = factor(.data$slice)) |>
-        dplyr::select(.data$id, .data$mapunit1, .data$mapunit2, .data$position, .data$transect_id,
-                      .data$tid, .data$slice, .data$bgc_cat, .data$fnf, .data$X, .data$Y, .data$data_type, dplyr::any_of(covars))
+        dplyr::select(
+          .data$id, .data$mapunit1, .data$mapunit2, .data$position, .data$transect_id,
+          .data$tid, .data$slice, .data$bgc_cat, .data$fnf, .data$X, .data$Y, .data$data_type, dplyr::any_of(covars)
+        )
 
       tdat
     })
@@ -62,7 +63,7 @@ prep_model_tps <- function(
     # format names
     names(bgc_pts_subzone) <- model_type
 
-    saveRDS(bgc_pts_subzone, fs::path(out_dir, "model_input_pts.rds"))
+    saveRDS(bgc_pts_subzone, fs::path(out_dir, outname))
   }
 
   # if bgc model then save as list of subzones
@@ -75,7 +76,9 @@ prep_model_tps <- function(
 
       out_bgc_dir <- fs::path(out_dir, i)
 
-      if (!dir.exists(out_bgc_dir)) { fs::dir_create(out_bgc_dir)}
+      if (!dir.exists(out_bgc_dir)) {
+        fs::dir_create(out_bgc_dir)
+      }
 
       pts_subzone <- prepped_points |>
         dplyr::filter(stringr::str_detect(.data$tid, as.character(paste0(tolower(i), "_")))) |>
@@ -98,9 +101,11 @@ prep_model_tps <- function(
       tdat <- pts_subzone |> dplyr::mutate(slice = factor(.data$slice))
 
       tdat <- tdat |>
-        dplyr::select(.data$id, .data$mapunit1, .data$mapunit2, .data$position, .data$transect_id,
-                      .data$tid, .data$slice, .data$bgc_cat, .data$fnf, .data$X, .data$Y,
-                      .data$data_type, dplyr::any_of(covars))
+        dplyr::select(
+          .data$id, .data$mapunit1, .data$mapunit2, .data$position, .data$transect_id,
+          .data$tid, .data$slice, .data$bgc_cat, .data$fnf, .data$X, .data$Y,
+          .data$data_type, dplyr::any_of(covars)
+        )
 
       tdat
     })

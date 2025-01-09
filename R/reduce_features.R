@@ -22,7 +22,6 @@ reduce_features <- function(
     covar_dir = fs::path(PEMprepr::read_fid()$dir_1020_covariates$path_rel, "5m"),
     covtype = "dem",
     cutoff = 0.90) {
-
   # check covarkey is a data frame and contains the appropriate columns
   if (!is.data.frame(covarkey)) {
     cli::cli_abort("{.var covarkey} must be a data frame")

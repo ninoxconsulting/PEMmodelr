@@ -14,10 +14,8 @@
 #' @examples
 #' \dontrun{
 #' acc_metrics(pred_data, fuzz, theta = 0.5)
-#'}
-
+#' }
 acc_metrics <- function(pred_data, fuzzmatrx, theta = 0.5) {
-
   # # testing lines
   #   pred_data = pred_all
   #     fuzzmatrx = fmat
@@ -108,7 +106,7 @@ acc_metrics <- function(pred_data, fuzzmatrx, theta = 0.5) {
   pdata$mapunit1 <- factor(pdata$mapunit1, levels = levs)
   pdata$.pred_class <- factor(pdata$.pred_class, levels = levs)
 
-  #pdata <- .harmonize_factors(pdata)
+  # pdata <- .harmonize_factors(pdata)
 
   pdata <- pdata |>
     tidyr::drop_na(.data$mapunit1) |>
@@ -118,19 +116,17 @@ acc_metrics <- function(pred_data, fuzzmatrx, theta = 0.5) {
   # perhaps need predicted tot still in here
 
   ### 1)machine learning stats
-  if(length(levels(pdata$mapunit1)) == 1){
-
+  if (length(levels(pdata$mapunit1)) == 1) {
     allunits <- levels(unique(pdata$mapunit1, pdata$mapunit2))
-    if(length(allunits) == 1){
+    if (length(allunits) == 1) {
       allunits <- c(allunits, "NA")
     }
 
-    levels(pdata$mapunit1) = allunits
+    levels(pdata$mapunit1) <- allunits
     levels(pdata$mapunit2) <- allunits
     levels(pdata$.pred_class) <- allunits
 
     cli::cli_alert_warning("Only one factor level in this slice, review metrics with caution")
-
   }
 
   acc <- pdata |>
@@ -166,8 +162,10 @@ acc_metrics <- function(pred_data, fuzzmatrx, theta = 0.5) {
     dplyr::mutate(spat_pf_correct = sum(.data$p_fuzzval)) |>
     dplyr::mutate(spat_paf_correct = sum(.data$pa_fuzzval)) |>
     dplyr::ungroup() |>
-    dplyr::select(-.data$id, -.data$mapunit1, -.data$mapunit2, -.data$.pred_class, -.data$p_fuzzval,
-                  -.data$pa_fuzzval, -.data$p_Val, -.data$pa_Val, -.data$alt_fuzzval) |>
+    dplyr::select(
+      -.data$id, -.data$mapunit1, -.data$mapunit2, -.data$.pred_class, -.data$p_fuzzval,
+      -.data$pa_fuzzval, -.data$p_Val, -.data$pa_Val, -.data$alt_fuzzval
+    ) |>
     dplyr::distinct()
 
   spatial_acc <- spatial_acc |>
@@ -202,8 +200,10 @@ acc_metrics <- function(pred_data, fuzzmatrx, theta = 0.5) {
       spat_pa_theta.5 = sum(.data$spat_pa_theta_work),
       spat_paf_theta.5 = sum(.data$spat_paf_theta_work)
     ) |>
-    dplyr::select(-.data$spat_p_theta_wt, -.data$spat_p_theta_work, -.data$spat_pa_theta_wt,
-                  -.data$spat_pa_theta_work, -.data$spat_paf_theta_wt, -.data$spat_paf_theta_work) |>
+    dplyr::select(
+      -.data$spat_p_theta_wt, -.data$spat_p_theta_work, -.data$spat_pa_theta_wt,
+      -.data$spat_pa_theta_work, -.data$spat_paf_theta_wt, -.data$spat_paf_theta_work
+    ) |>
     dplyr::distinct() |>
     dplyr::rename(mapunit1 = .data$mapunit.new)
 
@@ -297,8 +297,10 @@ acc_metrics <- function(pred_data, fuzzmatrx, theta = 0.5) {
 
   ### calculate paf aspatial statistics
   aspat_fpa_df <- accuracy_stats |>
-    dplyr::select(.data$mapunit1, .data$trans.sum, .data$no.classes, .data$trans.tot,
-                  .data$pred.tot, .data$spat_p_correct, .data$spat_paf_correct) |>
+    dplyr::select(
+      .data$mapunit1, .data$trans.sum, .data$no.classes, .data$trans.tot,
+      .data$pred.tot, .data$spat_p_correct, .data$spat_paf_correct
+    ) |>
     dplyr::rowwise() |>
     dplyr::mutate(
       aspat_paf_min_correct = min(.data$trans.tot, .data$pred.tot),

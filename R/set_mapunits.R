@@ -8,11 +8,9 @@
 #'
 #' @examples
 #' \dontrun{
-#' define_mapunits(tps, mapkey,attribute)
-#'}
-
+#' define_mapunits(tps, mapkey, attribute)
+#' }
 set_mapunits <- function(tps, mapkey, attribute) {
-
   #  #  testing lines
   # tps = allpts
   #  mpts = mapkey
@@ -23,16 +21,16 @@ set_mapunits <- function(tps, mapkey, attribute) {
   tps <- PEMprepr:::read_sf_if_necessary(tps)
 
   # check the attribute is within the mapkey
-  if(!attribute %in% colnames(mapkey)) {
+  if (!attribute %in% colnames(mapkey)) {
     cli::cat_line
     cli::cli_abort("{.var {attribute} is not present in mapkey, please check the attribute name and re-run}")
   }
 
-  #TODO: check that all field calls have a basemapunit : TODO
+  # TODO: check that all field calls have a basemapunit : TODO
 
   # match the column for map unit based on key
   mapkeysub <- mapkey |> dplyr::select(.data$fieldcall, dplyr::any_of(attribute))
-  names(mapkeysub) = c("fieldcall", "mapunit")
+  names(mapkeysub) <- c("fieldcall", "mapunit")
 
   # format spaces
   tps <- tps |>
@@ -53,17 +51,16 @@ set_mapunits <- function(tps, mapkey, attribute) {
     dplyr::mutate(mapunit2 = ifelse((.data$mapunit1 == .data$mapunit2), NA, .data$mapunit2))
 
   outdata <- outdata |>
-    dplyr::filter(!is.na(.data$mapunit1))|>
-    dplyr::filter(.data$mapunit1 != "")|>
+    dplyr::filter(!is.na(.data$mapunit1)) |>
+    dplyr::filter(.data$mapunit1 != "") |>
     dplyr::mutate(mapunit1 = dplyr::case_when(
       .data$mapunit1 == "" ~ NA,
-      .default = as.character(.data$mapunit1)))|>
+      .default = as.character(.data$mapunit1)
+    )) |>
     dplyr::mutate(mapunit2 = dplyr::case_when(
       mapunit2 == "" ~ NA,
-      .default = as.character(.data$mapunit2)))
+      .default = as.character(.data$mapunit2)
+    ))
 
   return(outdata)
-
-
 }
-

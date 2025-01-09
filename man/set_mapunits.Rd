@@ -21,6 +21,6 @@ Define mapunits to convert field data to modelled data
 }
 \examples{
 \dontrun{
-define_mapunits(tps, mapkey,attribute)
+define_mapunits(tps, mapkey, attribute)
 }
 }

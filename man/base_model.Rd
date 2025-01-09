@@ -9,7 +9,7 @@ base_model(
   fuzz_matrix,
   mtry = 14,
   min_n = 7,
-  use.neighbours = TRUE,
+  use_neighbours = TRUE,
   detailed_output = TRUE,
   out_dir
 )
@@ -23,7 +23,7 @@ base_model(
 
 \item{min_n}{numeric. This is the output based on output of hyperparamter model tuning (default = ??)}
 
-\item{use.neighbours}{if you want to incluse all neighbours in the calculation}
+\item{use_neighbours}{if you want to incluse all neighbours in the calculation}
 
 \item{detailed_output}{OPTIONAL:TRUE/FALSE if you want to output all raw values this is used to determine optimum theta values}
 
@@ -37,7 +37,9 @@ Run the basic model
 }
 \examples{
 \dontrun{
-base_model(train_pts, fuzz_matrix, mtry = 14, min_n = 7, use.neighbours = TRUE,
-detailed_output = TRUE, outdir)
+base_model(train_pts, fuzz_matrix,
+  mtry = 14, min_n = 7, use_neighbours = TRUE,
+  detailed_output = TRUE, outdir
+)
 }
 }
