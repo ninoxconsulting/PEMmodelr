@@ -39,3 +39,22 @@ select_pure_training <- function(tps) {
   target_vs_pred$.pred_class <- factor(target_vs_pred$.pred_class, levels = levs)
   return(target_vs_pred)
 }
+
+
+
+
+get_tiles <- function(tile_dir, template, tile_size){
+
+  if(!dir.exists(file.path(tile_dir))){
+    dir.create(file.path(tile_dir))
+
+    ntiles <- terra::makeTiles(template, tile_size, filename = file.path(tile_dir, "tile_.tif"),  na.rm=FALSE, overwrite = TRUE)
+
+  }else if(dir.exists(file.path(tile_dir))){
+    ntiles <- list.files(tile_dir, full.names = T)
+  }
+
+  return(ntiles)
+
+}
+
