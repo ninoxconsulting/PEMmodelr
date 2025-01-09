@@ -26,6 +26,8 @@ Imports:
   rsample,
   tune,
   workflows,
+  doParallel,
+  tidyr,
   stringr,
   utils,
   tibble,

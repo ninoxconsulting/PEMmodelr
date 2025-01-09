@@ -23,7 +23,7 @@ tune_rf <- function(tran_dat) {
     parsnip::set_engine("ranger")
 
   best_recipe <- recipes::recipe(mapunit1 ~ ., data = trees_train) |>
-    recipes::update_role(slice, new_role = "id variable")
+    recipes::update_role(.data$slice, new_role = "id variable")
 
   tune_wf <- workflows::workflow() |>
     workflows::add_recipe(best_recipe) |>
