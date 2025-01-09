@@ -26,7 +26,7 @@ acc_metrics <- function(pred_data, fuzzmatrx, theta = 0.5) {
   pred_data <- pred_data |>
     dplyr::select(dplyr::any_of(preds)) |>
     dplyr::mutate_if(is.factor, as.character)
-  pred_data <- replace(pred_data, is.na(.data$pred_data), 0)
+  pred_data <- replace(pred_data, is.na(pred_data), 0)
 
   # add the fuzzy value for mapunit 1 and predicted
   data1 <- dplyr::left_join(pred_data, fuzzmatrx, by = c("mapunit1" = "target", ".pred_class" = "Pred")) |>
@@ -307,7 +307,7 @@ acc_metrics <- function(pred_data, fuzzmatrx, theta = 0.5) {
       aspat_paf_extra = .data$spat_paf_correct - .data$spat_p_correct,
       aspat_paf_total = .data$aspat_paf_min_correct + .data$aspat_paf_extra,
       aspat_paf_pred = min((.data$aspat_paf_total / .data$trans.tot), (.data$trans.tot / .data$trans.tot)),
-      aspat_paf_pred2 = min((.data$aspat_paf_total / .data$trans.sum), (.data$trans.tot / .data$rans.sum)),
+      aspat_paf_pred2 = min((.data$aspat_paf_total / .data$trans.sum), (.data$trans.tot / .data$trans.sum)),
       aspat_paf_unit_pos = min(.data$trans.tot, .data$aspat_paf_total)
     ) |>
     dplyr::ungroup() |>

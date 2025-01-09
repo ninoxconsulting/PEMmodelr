@@ -13,8 +13,7 @@
 #' \dontrun{
 #' base_model(train_pts, fuzz_matrix,
 #'   mtry = 14, min_n = 7, use_neighbours = TRUE,
-#'   detailed_output = TRUE, outdir
-#' )
+#'   detailed_output = TRUE, outdir)
 #' }
 base_model <- function(train_data,
                        fuzz_matrix,
