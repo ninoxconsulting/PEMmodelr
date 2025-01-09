@@ -1,4 +1,3 @@
-
 #' Generate a covariate key
 #'
 #' This function reviews covariates in the attribute points and generates a key to be used in
@@ -14,33 +13,26 @@
 #'
 #' @examples
 #' \dontrun{
-#' covkey <- generate_covar_key(att_pts,overwrite = FALSE,
-#' out_dir = PEMprepr::read_fid()$dir_30_model$path_rel, out_name = "covar_key.csv")
+#' covkey <- generate_covar_key(att_pts,
+#'   overwrite = FALSE,
+#'   out_dir = PEMprepr::read_fid()$dir_30_model$path_rel, out_name = "covar_key.csv"
+#' )
 #' }
 generate_covar_key <- function(
     att_pts,
     overwrite = FALSE,
     out_dir = PEMprepr:::read_fid()$dir_30_model$path_rel,
     out_name = "covar_key.csv") {
-  # testing
-  #  overwrite = TRUE
-  ##  out_dir = PEMprepr::read_fid()$dir_30_model$path_rel
-  #  out_name = "covar_key.csv"
-  # end testing
-
-
   # check if input is an sf object
   if (!inherits(att_pts, "sf")) {
     cli::cli_abort("att_pts must be an sf object")
     return()
   }
 
-
   if (!overwrite & fs::file_exists(fs::path(out_dir, out_name))) {
     cli::cli_abort("covariate key file already exists, set overwrite = TRUE to overwrite")
     return()
   }
-
 
   # define the names of columns by type
   core_names <- c(
@@ -80,9 +72,7 @@ generate_covar_key <- function(
     "vc3_mosaic", "p98_mosaic_rproj"
   )
 
-
   sat_name <- c("red", "green", "blue", "nir", "swir1", "swir2")
-
 
   # add covariates that will be generated in the next steps
   covars <- tibble::as_tibble(c(

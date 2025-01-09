@@ -24,37 +24,27 @@
 #' }
 prep_tps <- function(
     allpts = sf::st_read(fs::path(PEMprepr::read_fid()$dir_20105030_attributed_field_data$path_rel, "allpoints_att.gpkg")),
-    mapkey = utils::read.csv(fs::path(PEMprepr::read_fid()$dir_3010_inputs$path_rel,"mapunitkey_final.csv")),
-    covarkey = utils::read.csv(fs::path(PEMprepr::read_fid()$dir_30_model$path_rel,"covar_key.csv")),
+    mapkey = utils::read.csv(fs::path(PEMprepr::read_fid()$dir_3010_inputs$path_rel, "mapunitkey_final.csv")),
+    covarkey = utils::read.csv(fs::path(PEMprepr::read_fid()$dir_30_model$path_rel, "covar_key.csv")),
     attribute = "mapunit_ss_realm",
     bec = sf::st_read(fs::path(PEMprepr::read_fid()$dir_1010_vector$path_rel, "bec.gpkg")),
     min_no = 10) {
-
-
-  # #  testing
-  #  allpts = allpts
-  #  bec =  sf::st_read(fs::path(PEMprepr::read_fid()$dir_1010_vector$path_rel, "bec.gpkg"))
-  #  mapkey = mapkey
-  #  attribute = "mapunit_ss_realm"
-  #  min_no = 20
-  #  out_dir = fs::path(PEMprepr::read_fid()$dir_30_model$path_rel, "20_f")
-
   # assign nap unit name
   mpts <- set_mapunits(allpts, mapkey, attribute)
 
   # assign BEC zone to each point
   subzones <- unique(bec$MAP_LABEL)
-  subzones <- tolower(gsub("\\s+","",subzones))
+  subzones <- tolower(gsub("\\s+", "", subzones))
 
   # Intersect BEC zones and format the dataset
-  tpts  <- sf::st_join(mpts, bec[, "MAP_LABEL"])
+  tpts <- sf::st_join(mpts, bec[, "MAP_LABEL"])
 
   tpts <- tpts |>
     dplyr::mutate(fnf = ifelse(grepl(paste0(subzones, collapse = "|"), tolower(.data$mapunit1)), "forest", "non_forest")) |>
     dplyr::rename(bgc_cat = .data$MAP_LABEL) |>
     dplyr::rename_all(.funs = tolower)
 
-  if(attribute == "mapunit_fnf") {
+  if (attribute == "mapunit_fnf") {
     tpts <- tpts |>
       dplyr::mutate(fnf = .data$mapunit1)
   }
@@ -63,8 +53,10 @@ prep_tps <- function(
   tpts <- .filter_min_mapunits(tpts, min_no)
 
   tpts <- tpts |>
-    dplyr::mutate(mapunit1 = as.factor(.data$mapunit1),
-                  mapunit2 = as.factor(.data$mapunit2))
+    dplyr::mutate(
+      mapunit1 = as.factor(.data$mapunit1),
+      mapunit2 = as.factor(.data$mapunit2)
+    )
 
   extra_names <- covarkey |>
     dplyr::filter(.data$type == "extra") |>
@@ -74,6 +66,4 @@ prep_tps <- function(
   tpts <- tpts |> dplyr::select(-dplyr::any_of(extra_names))
 
   return(tpts)
-
 }
-
