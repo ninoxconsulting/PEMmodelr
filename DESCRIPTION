@@ -25,6 +25,7 @@ Imports:
   recipes, 
   rsample,
   tune,
+  tidyterra,
   workflows,
   yardstick,
   purrr,
