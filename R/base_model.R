@@ -1,6 +1,6 @@
 #' Run the basic model
 #'
-#' @param train_data data table containing the training data set
+#' @param train_data A list of prepped data. Output of `prep_model_tps()`
 #' @param fuzz_matrix data table with fuzzy metrics
 #' @param mtry numeric. This is the output based on output of hyperparamter model tuning (default = ??)
 #' @param min_n numeric. This is the output based on output of hyperparamter model tuning (default = ??)
@@ -22,6 +22,7 @@ base_model <- function(train_data,
                        use_neighbours = TRUE,
                        detailed_output = TRUE,
                        out_dir) {
+
   # training set - train only on pure calls
   ref_dat <- train_data |>
     dplyr::filter(!is.na(.data$slice)) |>

@@ -28,6 +28,7 @@ Imports:
   workflows,
   yardstick,
   purrr,
+  themis,
   doParallel,
   tidyr,
   stringr,

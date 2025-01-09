@@ -2,6 +2,7 @@
 
 export(acc_metrics)
 export(base_model)
+export(final_model)
 export(generate_covar_key)
 export(prep_model_tps)
 export(prep_tps)

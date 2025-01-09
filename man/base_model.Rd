@@ -15,7 +15,7 @@ base_model(
 )
 }
 \arguments{
-\item{train_data}{data table containing the training data set}
+\item{train_data}{A list of prepped data. Output of \code{prep_model_tps()}}
 
 \item{fuzz_matrix}{data table with fuzzy metrics}
 
