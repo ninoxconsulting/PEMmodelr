@@ -41,15 +41,15 @@ final_model <- function(train_data, mtry, min_n, ds_ratio = NA, sm_ratio = NA){
 
     print("no downsample or smoting")
 
-    best_recipe <-  recipes::recipe(.data$mapunit1 ~ ., data = ref_dat)
+    best_recipe <-  recipes::recipe(mapunit1 ~ ., data = ref_dat)
 
   }
   if(is.na(ds_ratio) & !is.na(sm_ratio)){
 
     print("applying smoting")
 
-    best_recipe <-  recipes::recipe(.data$mapunit1 ~ ., data = ref_dat) |>
-      themis::step_smote(.data$mapunit1, over_ratio = sm_ratio , neighbors = 5, skip = TRUE)
+    best_recipe <-  recipes::recipe(mapunit1 ~ ., data = ref_dat) |>
+      themis::step_smote(mapunit1, over_ratio = sm_ratio , neighbors = 5, skip = TRUE)
 
   }
 
@@ -57,17 +57,17 @@ final_model <- function(train_data, mtry, min_n, ds_ratio = NA, sm_ratio = NA){
 
     print("applying downsample")
 
-    best_recipe <-  recipes::recipe(.data$mapunit1 ~ ., data = ref_dat) |>
-      themis::step_downsample(.data$mapunit1, under_ratio = ds_ratio)
+    best_recipe <-  recipes::recipe(mapunit1 ~ ., data = ref_dat) |>
+      themis::step_downsample(mapunit1, under_ratio = ds_ratio)
 
   }
   if(!is.na(ds_ratio) & !is.na(sm_ratio)){
 
     print("applying downsample and smoting")
 
-    best_recipe <-  recipes::recipe(.data$mapunit1 ~ ., data = ref_dat) |>
-      themis::step_downsample(.data$mapunit1, under_ratio = ds_ratio) |>
-      themis::step_smote(.data$mapunit1, over_ratio = sm_ratio , neighbors = 5, skip = TRUE)
+    best_recipe <-  recipes::recipe(mapunit1 ~ ., data = ref_dat) |>
+      themis::step_downsample(mapunit1, under_ratio = ds_ratio) |>
+      themis::step_smote(mapunit1, over_ratio = sm_ratio , neighbors = 5, skip = TRUE)
 
   }
 
