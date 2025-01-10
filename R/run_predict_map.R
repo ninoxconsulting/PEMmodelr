@@ -157,7 +157,7 @@ combine_sub_maps = function(
 
   terra::writeRaster(m, fs::path(out_folder, "best_map.tif"), overwrite = TRUE)
 
-  utils::write.csv(rkey, fs::path(out_folder, "response_key.csv"))
+  utils::write.csv(rkey, fs::path(out_folder, "response_names.csv"))
 
   cli::cli_alert_success("forest map merged and created and saved: {out_folder}")
 

@@ -2,6 +2,7 @@
 
 export(acc_metrics)
 export(base_model)
+export(final_map)
 export(final_model)
 export(generate_covar_key)
 export(predict_map)
