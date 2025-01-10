@@ -25,6 +25,6 @@ Predict Map from model
 }
 \examples{
 \dontrun{
-predict_map(rf_fit, out_dir = file.path(fid$model_final[2], "ESSF","map_working"), 500, rstack)
+predict_map(rf_fit, out_dir, tile_dir, rstack, probability = FALSE)
 }
 }
