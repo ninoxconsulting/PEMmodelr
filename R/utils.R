@@ -50,6 +50,8 @@ get_tiles <- function(tile_dir, template, tile_size){
 
     ntiles <- terra::makeTiles(template, tile_size, filename = file.path(tile_dir, "tile_.tif"),  na.rm=FALSE, overwrite = TRUE)
 
+    cli::cli_alert_info("Creating tiles")
+
   }else if(dir.exists(file.path(tile_dir))){
     ntiles <- list.files(tile_dir, full.names = T)
   }
