@@ -124,12 +124,11 @@ combine_sub_maps = function(
     # check if the key matches or needs reclassification
     if (isTRUE(unique(subkey$mosaic == subkey$map.response))) {
 
-      print("matching key")
+      cli::cli_alert_info("matching key")
 
     } else {
 
-      print("updating key")
-
+      cli::cli_alert_info("updating key")
 
       for(i in 1:nrow(subkey)){
 
