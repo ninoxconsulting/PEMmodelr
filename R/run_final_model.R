@@ -24,9 +24,8 @@ run_final_model <- function (
     sm_ratio = NA,
     mname  =  "base",
     report = FALSE,
-    out_dir
+    out_dir = NA
 ){
-
 
   final_bgc <- lapply(names(train_data), function(i) {
 
@@ -48,7 +47,6 @@ run_final_model <- function (
 
     final_data <- final_data[stats::complete.cases(final_data[, 2:length(final_data)]), ]
 
-
     final_model <- final_model(
       final_data,
       mtry = mtry,
@@ -58,6 +56,7 @@ run_final_model <- function (
     )
 
     # Output model
+    cli::cli_alert_success("model fit complete and written to {out_bgc_dir}")
     saveRDS(final_model, fs::path(out_bgc_dir, paste0("final_model_", mname, ".rds")))
 
     # generate a report if requested

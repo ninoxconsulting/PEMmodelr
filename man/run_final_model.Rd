@@ -11,7 +11,7 @@ run_final_model(
   sm_ratio = NA,
   mname = "base",
   report = FALSE,
-  out_dir
+  out_dir = NA
 )
 }
 \arguments{

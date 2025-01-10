@@ -5,7 +5,7 @@
 \title{Generate maps from predicted model and output map or combined maps}
 \usage{
 run_predict_map(
-  model_type = "f",
+  model_type = NA,
   model_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel, "20_f"),
   covars = dplyr::pull(utils::read.csv(fs::path(model_dir,
     "reduced_covariate_list.csv"))),

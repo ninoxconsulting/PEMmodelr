@@ -22,7 +22,7 @@
 #'     bec_shp = sf::st_read(fs::path(PEMprepr::read_fid()$dir_1010_vector$path_rel,"bec.gpkg")))
 #'}
 run_predict_map <- function(
-    model_type = "f",
+    model_type = NA,
     model_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel, "20_f"),
     covars = utils::read.csv(fs::path(model_dir, "reduced_covariate_list.csv")) |>  dplyr::pull(),
     cov_dir = fs::path(PEMprepr::read_fid()$dir_1020_covariates$path_rel, "5m"),
