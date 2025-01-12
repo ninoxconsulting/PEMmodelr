@@ -1,12 +1,9 @@
 #' Combine the final map including forest/non-forest, forest and non-forest maps
 #'
-#' @param fnf_dir a character or path to the location of the forest/non-forest directory
 #' @param fnf_key a character or path to the location of the forest/non-forest key
 #' @param fnf_map a character or path to the location of the forest/non-forest map (.tif)
-#' @param f_dir a character or path to the location of the forest directory
 #' @param f_map a character or path to the location of the forest map (.tif)
 #' @param f_key a character or path to the location of the forest key
-#' @param nf_dir a character or path to the location of the non-forest directory
 #' @param nf_map a character or path to the location of the non-forest map (.tif)
 #' @param nf_key a character or path to the location of the non-forest key
 #' @param out_dir a character or path to the location of the output directory
@@ -17,26 +14,20 @@
 #'
 #' @examples
 #' \dontrun{
-#' final_map( fnf_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel, "10_fnf","fnf","map"),
-#'           fnf_map = terra::rast(fs::path(fnf_dir, "best_map.tif")),
+#' final_map( fnf_map = terra::rast(fs::path(fnf_dir, "best_map.tif")),
 #'           fnf_key = utils::read.csv(fs::path(fnf_dir, "response_names.csv")),
-#'           f_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel, "20_f","map"),
 #'           f_map <- terra::rast(fs::path(f_dir, "best_map.tif")),
 #'           f_key <- read.csv(fs::path(f_dir, "response_key.csv")),
-#'           nf_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel, "30_nf", "nf","map"),
 #'           nf_map <- terra::rast(fs::path(nf_dir, "best_map.tif")),
 #'           nf_key <- read.csv(fs::path(nf_dir, "response_names.csv")),
 #'           out_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel),
 #'           outname = "full_map.tif")
 #' }
 final_map <- function(
-    fnf_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel, "10_fnf","fnf","map"),
     fnf_map = fnf_map,
     fnf_key = fnf_key,
-    f_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel, "20_f","map"),
     f_map = f_map,
     f_key = f_key,
-    nf_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel, "30_nf", "nf","map"),
     nf_map = nf_map,
     nf_key = nf_key,
     out_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel),
