@@ -46,8 +46,20 @@ generate_theta_metrics = function(datafolder, fmat) {
 
 
 
-# select theta threshold
 
+#' select theta threshold
+#'
+#' @param allthetas a date with all accuracy metrics for all predictions. This is the
+#' output of `generate_theta_metrics()`
+#'
+#' @returns a dataframe with the theta threshold
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' select_theta_threshold(allthetas)
+#' }
+#'
 select_theta_threshold <- function(allthetas){
 
   #allthetas = acc_out
@@ -107,6 +119,22 @@ select_theta_threshold <- function(allthetas){
 }
 
 
+#' Run all theta metrics functions
+#' A wrapper to run `generate_theta_metrics()` and `select_theta_threshold()`
+#'
+#' @param bgc_pts_subzone preppare list of traingin points for each BGC or forest non forest type
+#' @param out_dir the output directory
+#' @param fmat a dataframe of the fuzzy matrix values
+#' @param overwrite logical if TRUE will overwrite the compiled theta results file
+#'
+#' @returns an output directory (invisible)
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' run_theta_metrics(bgc_pts_subzone, out_dir, fmat, overwrite = FALSE)
+#'}
+#'
 run_theta_metrics <- function(bgc_pts_subzone, out_dir, fmat, overwrite = FALSE) {
 
   bgcs <- names(bgc_pts_subzone)
