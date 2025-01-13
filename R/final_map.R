@@ -14,14 +14,16 @@
 #'
 #' @examples
 #' \dontrun{
-#' final_map( fnf_map = terra::rast(fs::path(fnf_dir, "best_map.tif")),
-#'           fnf_key = utils::read.csv(fs::path(fnf_dir, "response_names.csv")),
-#'           f_map <- terra::rast(fs::path(f_dir, "best_map.tif")),
-#'           f_key <- read.csv(fs::path(f_dir, "response_key.csv")),
-#'           nf_map <- terra::rast(fs::path(nf_dir, "best_map.tif")),
-#'           nf_key <- read.csv(fs::path(nf_dir, "response_names.csv")),
-#'           out_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel),
-#'           outname = "full_map.tif")
+#' final_map(
+#'   fnf_map = terra::rast(fs::path(fnf_dir, "best_map.tif")),
+#'   fnf_key = utils::read.csv(fs::path(fnf_dir, "response_names.csv")),
+#'   f_map <- terra::rast(fs::path(f_dir, "best_map.tif")),
+#'   f_key <- read.csv(fs::path(f_dir, "response_key.csv")),
+#'   nf_map <- terra::rast(fs::path(nf_dir, "best_map.tif")),
+#'   nf_key <- read.csv(fs::path(nf_dir, "response_names.csv")),
+#'   out_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel),
+#'   outname = "full_map.tif"
+#' )
 #' }
 final_map <- function(
     fnf_map = fnf_map,
@@ -32,8 +34,7 @@ final_map <- function(
     nf_key = nf_key,
     out_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel),
     outname = "full_map.tif") {
-
-  if(!dir.exists(out_dir)){
+  if (!dir.exists(out_dir)) {
     fs::dir_create(out_dir)
   }
 
@@ -56,11 +57,11 @@ final_map <- function(
 
   msk_f <- terra::ifel(fnf_map == nfkey, NA, 1)
   f_mask <- terra::mask(fnf_map, msk_f)
-  #terra::plot(f_mask)
+  # terra::plot(f_mask)
 
   for_map <- terra::mask(f_map, f_mask)
-  #terra::plot(for_map)
-  #f_key
+  # terra::plot(for_map)
+  # f_key
 
   ## non- vegetated filter....
 
@@ -78,9 +79,9 @@ final_map <- function(
   rkey <- rkey |> dplyr::mutate(map.response_full = seq_len(nrow(rkey)))
 
   # update the non-forest map codes
-  #nonfor_map
-  #terra::plot(nonfor_map)
-  #rkey
+  # nonfor_map
+  # terra::plot(nonfor_map)
+  # rkey
 
   rtemp <- nonfor_map
 
@@ -113,7 +114,7 @@ final_map <- function(
   # tidy key and output maps
   rkey <- rkey |> dplyr::select(.data$.pred_class, .data$pred_no, .data$model, .data$map.response_full)
 
-  #write the full map and key
+  # write the full map and key
 
   terra::writeRaster(full_map, fs::path(out_dir, outname), overwrite = TRUE)
 

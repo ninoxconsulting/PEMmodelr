@@ -44,8 +44,7 @@ select_pure_training <- function(tps) {
 
 # internal function for model run preparations
 
-.create_training_set <- function(ref_dat, k){
-
+.create_training_set <- function(ref_dat, k) {
   ref_train <- ref_dat |>
     dplyr::filter(!.data$slice %in% k) |>
     dplyr::filter(is.na(.data$mapunit2)) |> # train only on pure calls
@@ -57,23 +56,19 @@ select_pure_training <- function(tps) {
 }
 
 
-.create_test_set <- function(ref_dat, k, use_neighbours, MU_count){
-
+.create_test_set <- function(ref_dat, k, use_neighbours, MU_count) {
   if (use_neighbours) {
     # test set
     ref_test <- ref_dat |>
       dplyr::filter(.data$slice %in% k) |>
       dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
       droplevels()
-
-  }else{
-
+  } else {
     ref_test <- ref_dat |>
       dplyr::filter(.data$slice %in% k) |>
       dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
       dplyr::filter(.data$position == "Orig") |>
       droplevels()
-
   }
 
   return(ref_test)
@@ -82,8 +77,7 @@ select_pure_training <- function(tps) {
 
 # internal function to prep model output
 
-.prep_model_output <- function(pred_all, nf_mapunits){
-
+.prep_model_output <- function(pred_all, nf_mapunits) {
   pred_all <- pred_all |> dplyr::mutate(
     mapunit1 = as.character(.data$mapunit1),
     mapunit2 = as.character(.data$mapunit2),
@@ -100,34 +94,31 @@ select_pure_training <- function(tps) {
 
   # harmonize factor levels
   pred_all <- .harmonize_factors(pred_all)
-  pred_all$mapunit2 = as.factor(pred_all$mapunit2)
+  pred_all$mapunit2 <- as.factor(pred_all$mapunit2)
 
   return(pred_all)
-
 }
 
 
 # combine into a single file:
 
-combine_balance_outputs <- function(out_bgc_dir){
-
+combine_balance_outputs <- function(out_bgc_dir) {
   bal_dir <- fs::path(out_bgc_dir, "balance")
 
   alldata_list <- list.files(file.path(bal_dir), full.names = TRUE, pattern = "acc_", recursive = TRUE)
   # remove files with no information
-  data_list <- alldata_list[file.info(alldata_list)$size>10]
+  data_list <- alldata_list[file.info(alldata_list)$size > 10]
 
-  aresults <- purrr::map(data_list, function(k){
-    temp = utils::read.csv(k)
-    temp <- temp |>  dplyr::mutate(filename = paste(basename(k)))
+  aresults <- purrr::map(data_list, function(k) {
+    temp <- utils::read.csv(k)
+    temp <- temp |> dplyr::mutate(filename = paste(basename(k)))
     temp
-  })|> dplyr::bind_rows()
+  }) |> dplyr::bind_rows()
 
 
-  aresults <- aresults |> dplyr::mutate(balance = gsub(".csv","", .data$filename ))
+  aresults <- aresults |> dplyr::mutate(balance = gsub(".csv", "", .data$filename))
 
   return(aresults)
-
 }
 
 
@@ -143,20 +134,16 @@ combine_balance_outputs <- function(out_bgc_dir){
 
 
 
-get_tiles <- function(tile_dir, template, tile_size){
-
-  if(!dir.exists(file.path(tile_dir))){
+get_tiles <- function(tile_dir, template, tile_size) {
+  if (!dir.exists(file.path(tile_dir))) {
     dir.create(file.path(tile_dir))
 
-    ntiles <- terra::makeTiles(template, tile_size, filename = file.path(tile_dir, "tile_.tif"),  na.rm=FALSE, overwrite = TRUE)
+    ntiles <- terra::makeTiles(template, tile_size, filename = file.path(tile_dir, "tile_.tif"), na.rm = FALSE, overwrite = TRUE)
 
     cli::cli_alert_info("Creating tiles")
-
-  }else if(dir.exists(file.path(tile_dir))){
+  } else if (dir.exists(file.path(tile_dir))) {
     ntiles <- list.files(tile_dir, full.names = T)
   }
 
   return(ntiles)
-
 }
-

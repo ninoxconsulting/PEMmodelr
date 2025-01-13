@@ -10,35 +10,31 @@
 #' \dontrun{
 #' generate_theta_metrics(datafolder, fuzz_matrix)
 #' }
-generate_theta_metrics = function(datafolder, fuzz_matrix) {
-
-  #datafolder = i
+generate_theta_metrics <- function(datafolder, fuzz_matrix) {
+  # datafolder = i
 
   slices <- as.factor(list.files(datafolder, pattern = "prediction_*"))
 
-  if("compiled_theta_results.csv" %in% slices){
+  if ("compiled_theta_results.csv" %in% slices) {
     cli::cli_alert_warning("compiled theta file already exists, this file will be overwriten")
-    slices = slices[-1] |>
+    slices <- slices[-1] |>
       droplevels()
   }
 
-  theta_acc <- purrr::map(levels(slices), function(k){
-    #k = levels(slices)[1]
+  theta_acc <- purrr::map(levels(slices), function(k) {
+    # k = levels(slices)[1]
     cli::cli_alert_info(paste0("Calculating theta metrics for ", k))
 
     pred_all <- readRDS(file.path(datafolder, k))
     theta_vals <- as.factor(c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9))
     # note if you add 1 and 0 this will interfere with the generate theta threshold calculations
 
-    allthetas <- purrr::map(levels(theta_vals), function(th){
-
-      tacc <- acc_metrics(pred_all, fuzz_matrix = fuzz_matrix, theta = as.numeric(th))  |>
+    allthetas <- purrr::map(levels(theta_vals), function(th) {
+      tacc <- acc_metrics(pred_all, fuzz_matrix = fuzz_matrix, theta = as.numeric(th)) |>
         dplyr::mutate(theta = th)
+    }) |> dplyr::bind_rows()
 
-    })|> dplyr::bind_rows()
-
-    allthetas <- allthetas |>  dplyr::mutate(slice = k)
-
+    allthetas <- allthetas |> dplyr::mutate(slice = k)
   }) |> dplyr::bind_rows()
 
   return(theta_acc)
@@ -60,41 +56,44 @@ generate_theta_metrics = function(datafolder, fuzz_matrix) {
 #' select_theta_threshold(allthetas)
 #' }
 #'
-select_theta_threshold <- function(allthetas){
+select_theta_threshold <- function(allthetas) {
+  # allthetas = acc_out
 
-  #allthetas = acc_out
+  metrics <- as.factor(c("p", "pa", "paf"))
 
-  metrics = as.factor(c("p", "pa", "paf"))
-
-  theta_thresh <- purrr::map(levels(metrics), function(k){
-    #k = levels(metrics)[1]
-    mnames = paste0(k,"_theta")
-    noi <-  names(allthetas)[stringr::str_detect(names(allthetas),mnames)]
+  theta_thresh <- purrr::map(levels(metrics), function(k) {
+    # k = levels(metrics)[1]
+    mnames <- paste0(k, "_theta")
+    noi <- names(allthetas)[stringr::str_detect(names(allthetas), mnames)]
 
     acc <- allthetas |>
       dplyr::select(.data$slice, .data$theta, dplyr::any_of(noi)) |>
       dplyr::distinct()
 
-    acc2 <- acc  |>
+    acc2 <- acc |>
       tidyr::pivot_longer(cols = dplyr::where(is.numeric), names_to = "accuracy_type", values_to = "value") |>
       dplyr::distinct()
 
     acc <- acc2 |>
       dplyr::mutate(type = dplyr::case_when(
         stringr::str_detect(.data$accuracy_type, "aspat") ~ "aspatial",
-        stringr::str_detect(.data$accuracy_type, "spat") ~ "spatial"))|>
+        stringr::str_detect(.data$accuracy_type, "spat") ~ "spatial"
+      )) |>
       dplyr::mutate(theta_base = dplyr::case_when(
         stringr::str_detect(.data$accuracy_type, "theta0") ~ 0,
         stringr::str_detect(.data$accuracy_type, "theta.5") ~ NA,
-        stringr::str_detect(.data$accuracy_type, "theta1") ~ 1)) |>
-      dplyr::mutate(theta_final = ifelse(is.na(.data$theta_base), .data$theta, .data$theta_base))|>
+        stringr::str_detect(.data$accuracy_type, "theta1") ~ 1
+      )) |>
+      dplyr::mutate(theta_final = ifelse(is.na(.data$theta_base), .data$theta, .data$theta_base)) |>
       dplyr::select(-.data$theta_base)
 
     bal_out <- acc |>
-      dplyr::summarise(mean = mean(.data$value),
-                       q25 = stats::quantile(.data$value, probs = 0.25),
-                       q75 = stats::quantile(.data$value, probs = 0.75),
-                       .by = c(.data$type, .data$theta_final))|>
+      dplyr::summarise(
+        mean = mean(.data$value),
+        q25 = stats::quantile(.data$value, probs = 0.25),
+        q75 = stats::quantile(.data$value, probs = 0.75),
+        .by = c(.data$type, .data$theta_final)
+      ) |>
       dplyr::mutate(above_thresh = ifelse(.data$q25 <= 0.65, F, T))
 
     # #library(ggplot2)
@@ -111,8 +110,7 @@ select_theta_threshold <- function(allthetas){
     #
     # overall_acc
 
-    bal_out <- bal_out |>  dplyr::mutate(accuracy_type = k)
-
+    bal_out <- bal_out |> dplyr::mutate(accuracy_type = k)
   }) |> dplyr::bind_rows()
 
   return(theta_thresh)
@@ -133,10 +131,9 @@ select_theta_threshold <- function(allthetas){
 #' @examples
 #' \dontrun{
 #' run_theta_metrics(bgc_pts_subzone, out_dir, fuzz_matrix, overwrite = FALSE)
-#'}
+#' }
 #'
 run_theta_metrics <- function(bgc_pts_subzone, out_dir, fuzz_matrix, overwrite = FALSE) {
-
   bgcs <- names(bgc_pts_subzone)
 
   for (i in bgcs) {

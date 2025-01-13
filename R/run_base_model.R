@@ -16,7 +16,8 @@
 #' @examples
 #' \dontrun{
 #' run_base_model(bgc_pts_subzone, fuzz_matrix, covars, use_neighbours,
-#' detailed_output = FALSE, out_dir)
+#'   detailed_output = FALSE, out_dir
+#' )
 #' }
 run_base_model <- function(
     bgc_pts_subzone,
@@ -25,7 +26,6 @@ run_base_model <- function(
     use_neighbours = FALSE,
     detailed_output = TRUE,
     out_dir = NA) {
-
   model_bgc <- lapply(names(bgc_pts_subzone), function(i) {
     # i <- names(bgc_pts_subzone[1])
     tdat <- bgc_pts_subzone[[i]]

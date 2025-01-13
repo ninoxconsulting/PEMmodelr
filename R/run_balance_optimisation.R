@@ -18,8 +18,10 @@
 #' @examples
 #' \dontrun{
 #' run_balance_optimisation(bgc_pts_subzone,
-#' fmat, covars, out_dir,  ds_iterations = c(10, 20, 30, 40, 50, 60, 70, 80, 90),
-#' smote_iterations = c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9), use_neighbours = FALSE)
+#'   fmat, covars, out_dir,
+#'   ds_iterations = c(10, 20, 30, 40, 50, 60, 70, 80, 90),
+#'   smote_iterations = c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9), use_neighbours = FALSE
+#' )
 #' }
 run_balance_optimisation <- function(bgc_pts_subzone,
                                      fmat,
@@ -28,11 +30,8 @@ run_balance_optimisation <- function(bgc_pts_subzone,
                                      ds_iterations = c(10, 20, 30, 40, 50, 60, 70, 80, 90),
                                      smote_iterations = c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9),
                                      use_neighbours = FALSE) {
-
-
   bal_bgc <- lapply(names(bgc_pts_subzone), function(i) {
-
-    #i <- names(bgc_pts_subzone[1])
+    # i <- names(bgc_pts_subzone[1])
 
     tdat <- bgc_pts_subzone[[i]]
 
@@ -48,7 +47,7 @@ run_balance_optimisation <- function(bgc_pts_subzone,
 
     train_data <- droplevels(tdat)
 
-    #check if best balance exist
+    # check if best balance exist
     if (!fs::file_exists(fs::path(out_dir, i, "best_tuning.csv"))) {
       cli::cli_abort("No best tuning file found, please run `tune_model_params()` before running `run_balance_optimisation()`")
     }
@@ -74,8 +73,6 @@ run_balance_optimisation <- function(bgc_pts_subzone,
     best_metrics <- select_best_acc(allbals)
 
     utils::write.csv(best_metrics, file.path(out_bgc_dir, "best_balancing.csv"))
-
   })
   return(TRUE)
 }
-
