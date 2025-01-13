@@ -4,12 +4,12 @@
 \alias{generate_theta_metrics}
 \title{Generate theta metrics for given predictions}
 \usage{
-generate_theta_metrics(datafolder, fmat)
+generate_theta_metrics(datafolder, fuzz_matrix)
 }
 \arguments{
 \item{datafolder}{a character or filepath to the}
 
-\item{fmat}{a dataframe of the fuzzy matrix values}
+\item{fuzz_matrix}{a dataframe of the fuzzy matrix values}
 }
 \value{
 a dataframe with accuracy measures
@@ -19,6 +19,6 @@ Generate theta metrics for given predictions
 }
 \examples{
 \dontrun{
-generate_theta_metrics(datafolder, fmat)
+generate_theta_metrics(datafolder, fuzz_matrix)
 }
 }

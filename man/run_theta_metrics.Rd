@@ -5,14 +5,14 @@
 \title{Run all theta metrics functions
 A wrapper to run \code{generate_theta_metrics()} and \code{select_theta_threshold()}}
 \usage{
-run_theta_metrics(bgc_pts_subzone, out_dir, fmat, overwrite = FALSE)
+run_theta_metrics(bgc_pts_subzone, out_dir, fuzz_matrix, overwrite = FALSE)
 }
 \arguments{
 \item{bgc_pts_subzone}{preppare list of traingin points for each BGC or forest non forest type}
 
 \item{out_dir}{the output directory}
 
-\item{fmat}{a dataframe of the fuzzy matrix values}
+\item{fuzz_matrix}{a dataframe of the fuzzy matrix values}
 
 \item{overwrite}{logical if TRUE will overwrite the compiled theta results file}
 }
@@ -25,7 +25,7 @@ A wrapper to run \code{generate_theta_metrics()} and \code{select_theta_threshol
 }
 \examples{
 \dontrun{
-run_theta_metrics(bgc_pts_subzone, out_dir, fmat, overwrite = FALSE)
+run_theta_metrics(bgc_pts_subzone, out_dir, fuzz_matrix, overwrite = FALSE)
 }
 
 }

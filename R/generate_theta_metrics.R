@@ -144,7 +144,7 @@ run_theta_metrics <- function(bgc_pts_subzone, out_dir, fuzz_matrix, overwrite =
     cli::cli_alert_info(paste("Running theta metrics for", i))
 
     datafolder <- fs::path(out_dir, i)
-    acc_out <- generate_theta_metrics(datafolder, fmat)
+    acc_out <- generate_theta_metrics(datafolder, fuzz_matrix)
     theta_thresh <- select_theta_threshold(acc_out)
 
     # if file exists and overwrite is set to TRUE delete the file
