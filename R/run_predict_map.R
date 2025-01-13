@@ -90,7 +90,7 @@ combine_sub_maps <- function(
   submods <- basename(fs::dir_ls(model_dir, type = "directory"))
 
   # if "tiles exist remove this as vector
-  submods <- submods[submods != "tiles"]
+  submods <- submods[submods != "maps"]
 
   ## Generate final map by joining BGC maps together
 
