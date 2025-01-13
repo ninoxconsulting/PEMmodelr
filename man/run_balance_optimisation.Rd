@@ -40,7 +40,9 @@ is then summarised and the best metrics is exported as a separate csv.
 \examples{
 \dontrun{
 run_balance_optimisation(bgc_pts_subzone,
-fmat, covars, out_dir,  ds_iterations = c(10, 20, 30, 40, 50, 60, 70, 80, 90),
-smote_iterations = c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9), use_neighbours = FALSE)
+  fmat, covars, out_dir,
+  ds_iterations = c(10, 20, 30, 40, 50, 60, 70, 80, 90),
+  smote_iterations = c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9), use_neighbours = FALSE
+)
 }
 }

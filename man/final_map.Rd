@@ -40,13 +40,15 @@ Combine the final map including forest/non-forest, forest and non-forest maps
 }
 \examples{
 \dontrun{
-final_map( fnf_map = terra::rast(fs::path(fnf_dir, "best_map.tif")),
-          fnf_key = utils::read.csv(fs::path(fnf_dir, "response_names.csv")),
-          f_map <- terra::rast(fs::path(f_dir, "best_map.tif")),
-          f_key <- read.csv(fs::path(f_dir, "response_key.csv")),
-          nf_map <- terra::rast(fs::path(nf_dir, "best_map.tif")),
-          nf_key <- read.csv(fs::path(nf_dir, "response_names.csv")),
-          out_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel),
-          outname = "full_map.tif")
+final_map(
+  fnf_map = terra::rast(fs::path(fnf_dir, "best_map.tif")),
+  fnf_key = utils::read.csv(fs::path(fnf_dir, "response_names.csv")),
+  f_map <- terra::rast(fs::path(f_dir, "best_map.tif")),
+  f_key <- read.csv(fs::path(f_dir, "response_key.csv")),
+  nf_map <- terra::rast(fs::path(nf_dir, "best_map.tif")),
+  nf_key <- read.csv(fs::path(nf_dir, "response_names.csv")),
+  out_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel),
+  outname = "full_map.tif"
+)
 }
 }

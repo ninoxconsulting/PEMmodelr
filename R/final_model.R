@@ -16,6 +16,7 @@
 final_model <- function(train_data, mtry, min_n, ds_ratio = NA, sm_ratio = NA){
 
   # prep data
+
   ref_dat <- train_data |>
     dplyr::mutate(mapunit1 = as.factor(.data$mapunit1))
 
@@ -25,7 +26,6 @@ final_model <- function(train_data, mtry, min_n, ds_ratio = NA, sm_ratio = NA){
     droplevels()
 
   munits <- unique(ref_dat$mapunit1)
-  # nf_mapunits <- grep(munits, pattern = "_\\d", value = TRUE, invert = TRUE)
 
   ref_dat <- ref_dat[stats::complete.cases(ref_dat[, 2:length(ref_dat)]), ]
 
@@ -44,6 +44,7 @@ final_model <- function(train_data, mtry, min_n, ds_ratio = NA, sm_ratio = NA){
     best_recipe <-  recipes::recipe(mapunit1 ~ ., data = ref_dat)
 
   }
+
   if(is.na(ds_ratio) & !is.na(sm_ratio)){
 
     print("applying smoting")
@@ -61,6 +62,7 @@ final_model <- function(train_data, mtry, min_n, ds_ratio = NA, sm_ratio = NA){
       themis::step_downsample(mapunit1, under_ratio = ds_ratio)
 
   }
+
   if(!is.na(ds_ratio) & !is.na(sm_ratio)){
 
     print("applying downsample and smoting")

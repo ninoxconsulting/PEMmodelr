@@ -40,8 +40,10 @@ Balance_optimisation_iteration
 }
 \examples{
 \dontrun{
-balance_optimisation_iteration(train_data, ds_iterations = c(30, 40, 50),
-smote_iterations = c( 0.5, 0.6, 0.7), use_neighbours = FALSE, fuzz_matrix = fmat,
-out_dir = out_dir)
+balance_optimisation_iteration(train_data,
+  ds_iterations = c(30, 40, 50),
+  smote_iterations = c(0.5, 0.6, 0.7), use_neighbours = FALSE, fuzz_matrix = fmat,
+  out_dir = out_dir
+)
 }
 }

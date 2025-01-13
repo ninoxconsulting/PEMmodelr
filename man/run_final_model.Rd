@@ -7,11 +7,11 @@
 run_final_model(
   train_data,
   covars = covars,
-  ds_ratio = NA,
-  sm_ratio = NA,
-  mname = "base",
+  model_bal = "base",
   report = FALSE,
-  out_dir = NA
+  out_dir = NA,
+  ds_ratio = NA,
+  sm_ratio = NA
 )
 }
 \arguments{
@@ -19,16 +19,19 @@ run_final_model(
 
 \item{covars}{a character vector of covariates to include in the model}
 
-\item{ds_ratio}{numeric}
-
-\item{sm_ratio}{numeric}
-
-\item{mname}{character with name to be used in output}
+\item{model_bal}{the type of model to be run. This can be the base model or a balance model
+based on the best_balancing csv. Options include:"aspat_paf_theta.5" ,"aspat_paf_theta0" ,
+"aspat_paf_theta1" , "aspatial_sum", "spat_paf_theta.5" , "spat_paf_theta0", "spat_paf_theta1",
+"spatial_sum", "overall"}
 
 \item{report}{logical. If TRUE, a report will be generated.{PLACEHOLDER}}
 
 \item{out_dir}{root level out directory. A sub-folder will be created per
 model type (i.e "fnf" or "bgc level)}
+
+\item{ds_ratio}{numeric}
+
+\item{sm_ratio}{numeric}
 }
 \value{
 a list of dataframes with final models
@@ -38,7 +41,6 @@ Run the final model fit
 }
 \examples{
 \dontrun{
-run_final_model(train_data, covars, ds_ratio = NA, sm_ratio = NA,
-mname = "base", report = FALSE, out_dir)
+run_final_model(train_data, covars, model_bal = "base", report = FALSE, out_dir)
 }
 }

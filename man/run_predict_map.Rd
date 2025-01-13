@@ -38,11 +38,12 @@ Generate maps from predicted model and output map or combined maps
 \examples{
 \dontrun{
 run_predict_map(
-     model_type = "f",
-    model_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel, "20_f"),
-    covars = utils::read.csv(fs::path(model_dir, "reduced_covariate_list.csv")) |>  dplyr::pull(),
-    cov_dir = fs::path(PEMprepr::read_fid()$dir_1020_covariates$path_rel, "5m"),
-    tile_dir = fs::path(PEMprepr::read_fid()$dir_30_model$path_rel,"tiles"),
-    bec_shp = sf::st_read(fs::path(PEMprepr::read_fid()$dir_1010_vector$path_rel,"bec.gpkg")))
+  model_type = "f",
+  model_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel, "20_f"),
+  covars = utils::read.csv(fs::path(model_dir, "reduced_covariate_list.csv")) |> dplyr::pull(),
+  cov_dir = fs::path(PEMprepr::read_fid()$dir_1020_covariates$path_rel, "5m"),
+  tile_dir = fs::path(PEMprepr::read_fid()$dir_30_model$path_rel, "tiles"),
+  bec_shp = sf::st_read(fs::path(PEMprepr::read_fid()$dir_1010_vector$path_rel, "bec.gpkg"))
+)
 }
 }

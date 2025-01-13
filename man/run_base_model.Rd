@@ -38,6 +38,7 @@ Run the basic model
 \examples{
 \dontrun{
 run_base_model(bgc_pts_subzone, fuzz_matrix, covars, use_neighbours,
-detailed_output = FALSE, out_dir)
+  detailed_output = FALSE, out_dir
+)
 }
 }
