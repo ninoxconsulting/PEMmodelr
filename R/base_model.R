@@ -30,7 +30,8 @@ base_model <- function(train_data,
       mapunit1 = as.factor(.data$mapunit1),
       slice = as.factor(.data$slice)
     )
-  print("Training raw data models...")
+
+  cli::cli_alert_info("Training raw data models...")
 
   munits <- unique(ref_dat$mapunit1)
 
@@ -134,7 +135,8 @@ base_model <- function(train_data,
     pred_all <- .harmonize_factors(pred_all)
     pred_all$mapunit2 <- as.factor(pred_all$mapunit2)
 
-    print(paste0("generating accuracy metrics for slice:", k))
+    cli::cli_alert_info("generating accuracy metrics for slice:{ k }")
+    #print(paste0("generating accuracy metrics for slice:", k))
 
     if (detailed_output == TRUE) {
       saveRDS(pred_all, fs::path(out_dir, paste0("predictions_", k)))
