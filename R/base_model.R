@@ -108,7 +108,7 @@ base_model <- function(train_data,
       saveRDS(pred_all, fs::path(out_dir, paste0("predictions_", k)))
     }
 
-    acc <- acc_metrics(pred_all, fuzzmatrx = fuzz_matrix) |>
+    acc <- acc_metrics(pred_all, fuzz_matrix = fuzz_matrix) |>
       dplyr::mutate(
         slice = k,
         oob = oob

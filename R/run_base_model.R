@@ -1,7 +1,7 @@
 #' Run the basic model
 #'
 #' @param bgc_pts_subzone A list of prepped data. Output of `prep_model_tps()`
-#' @param fmat a data table with fuzzy metrics, generated using the `generate_fuzzy_matrix()` function
+#' @param fuzz_matrix a data table with fuzzy metrics, generated using the `generate_fuzzy_matrix()` function
 #' @param covars a character vector of covariates to include in the model
 #' @param use_neighbours if you want to incluse all neighbours in the calculation
 #' @param detailed_output OPTIONAL:TRUE/FALSE if you want to output all raw values this is used to determine optimum theta values
@@ -12,11 +12,11 @@
 #'
 #' @examples
 #' \dontrun{
-#' run_base_model(bgc_pts_subzone, fmat, covars, use_neighbours, detailed_output = FALSE, out_dir)
+#' run_base_model(bgc_pts_subzone, fuzz_matrix, covars, use_neighbours, detailed_output = FALSE, out_dir)
 #' }
 run_base_model <- function(
     bgc_pts_subzone,
-    fmat = NA,
+    fuzz_matrix = NA,
     covars = covars,
     use_neighbours = FALSE,
     detailed_output = TRUE,
@@ -45,7 +45,7 @@ run_base_model <- function(
 
     baseout <- base_model(
       train_data,
-      fuzz_matrix = fmat,
+      fuzz_matrix = fuzz_matrix,
       mtry = mtry,
       min_n = min_n,
       use_neighbours = use_neighbours,

@@ -23,7 +23,7 @@ balance_optimisation <- function(train_data = train_data,
                                  smote_iterations = smote_iterations,
                                  mtry = mtry,
                                  min_n = min_n,
-                                 fuzz_matrix = NA,
+                                 fuzz_matrix = fuzz_matrix,
                                  out_dir = out_dir,
                                  use_neighbours = FALSE){
 
@@ -39,10 +39,13 @@ balance_optimisation <- function(train_data = train_data,
 
   print("base model")
 
-  base_model(train_data, fuzz_matrix, mtry = mtry, min_n = min_n,
+  base_acc <- base_model(train_data, fuzz_matrix, mtry = mtry, min_n = min_n,
              use_neighbours =  FALSE,
-             detailed_output = FALSE,
-             out_dir = out_folder)
+             detailed_output = FALSE)
+
+
+  utils::write.csv(base_acc, file = fs::path(out_folder,"acc_base_model.csv"))
+
 
   # downsample and smote options
 

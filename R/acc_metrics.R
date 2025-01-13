@@ -6,19 +6,19 @@
 #' for primary+alternate+fuzzy with the same 3 theta settings
 #'
 #' @param pred_data a data.frame with mapunit1, mapunit2, and .pred columns
-#' @param fuzzmatrx is the fuzzy values matrix from the map key giving partial correct points
+#' @param fuzz_matrix is the fuzzy values matrix from the map key giving partial correct points
 #' for near misses
 #' @param theta the function always returns values for theta 0 and theta 1.
 #' The theta setting sets an intermediate theta setting to report efault set to 0.5
 #' @export
 #' @examples
 #' \dontrun{
-#' acc_metrics(pred_data, fuzz, theta = 0.5)
+#' acc_metrics(pred_data, fuzz_matrix, theta = 0.5)
 #' }
-acc_metrics <- function(pred_data, fuzzmatrx, theta = 0.5) {
+acc_metrics <- function(pred_data, fuzz_matrix, theta = 0.5) {
   # # testing lines
   #   pred_data = pred_all
-  #     fuzzmatrx = fmat
+  #     fuzz_matrix = fmat
   #     theta = 0.5
   # # # end testing line
 
@@ -29,13 +29,13 @@ acc_metrics <- function(pred_data, fuzzmatrx, theta = 0.5) {
   pred_data <- replace(pred_data, is.na(pred_data), 0)
 
   # add the fuzzy value for mapunit 1 and predicted
-  data1 <- dplyr::left_join(pred_data, fuzzmatrx, by = c("mapunit1" = "target", ".pred_class" = "Pred")) |>
+  data1 <- dplyr::left_join(pred_data, fuzz_matrix, by = c("mapunit1" = "target", ".pred_class" = "Pred")) |>
     dplyr::mutate_if(is.character, as.factor) |>
     dplyr::mutate(fVal = ifelse(is.na(.data$fVal), 0, .data$fVal)) |>
     dplyr::rename("p_fuzzval" = .data$fVal)
 
   # add the fuzzy value for mapunit 2 and predicted
-  data2 <- dplyr::left_join(data1, fuzzmatrx, by = c("mapunit2" = "target", ".pred_class" = "Pred")) |>
+  data2 <- dplyr::left_join(data1, fuzz_matrix, by = c("mapunit2" = "target", ".pred_class" = "Pred")) |>
     dplyr::mutate_if(is.character, as.factor) |>
     dplyr::mutate(fVal = ifelse(is.na(.data$fVal), 0, .data$fVal)) |> # replace(is.na(data1$fVal), 0) |>
     dplyr::rename("alt_fuzzval" = .data$fVal)
