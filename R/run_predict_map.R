@@ -82,15 +82,14 @@ run_predict_map <- function(
 
 # combine bgc maps for forested areas
 combine_sub_maps <- function(
-    bec_shp = NA,
-    model_dir = model_dir,
-    model_name_label = model_name_label
-    ) {
+    bec_shp,
+    model_dir,
+    model_name_label) {
   # set a list of all sub models to run (ie. BGC folders)
   submods <- basename(fs::dir_ls(model_dir, type = "directory"))
 
   # if "tiles exist remove this as vector
-  submods <- submods[submods != "maps"]
+  submods <- submods[submods != "map"]
 
   ## Generate final map by joining BGC maps together
 
