@@ -4,12 +4,12 @@
 \alias{acc_metrics}
 \title{Calculate model accuracy metrics}
 \usage{
-acc_metrics(pred_data, fuzzmatrx, theta = 0.5)
+acc_metrics(pred_data, fuzz_matrix, theta = 0.5)
 }
 \arguments{
 \item{pred_data}{a data.frame with mapunit1, mapunit2, and .pred columns}
 
-\item{fuzzmatrx}{is the fuzzy values matrix from the map key giving partial correct points
+\item{fuzz_matrix}{is the fuzzy values matrix from the map key giving partial correct points
 for near misses}
 
 \item{theta}{the function always returns values for theta 0 and theta 1.
@@ -23,6 +23,6 @@ for primary+alternate+fuzzy with the same 3 theta settings
 }
 \examples{
 \dontrun{
-acc_metrics(pred_data, fuzz, theta = 0.5)
+acc_metrics(pred_data, fuzz_matrix, theta = 0.5)
 }
 }

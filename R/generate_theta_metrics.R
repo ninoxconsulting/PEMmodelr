@@ -1,16 +1,16 @@
 #' Generate theta metrics for given predictions
 #'
 #' @param datafolder a character or filepath to the
-#' @param fmat a dataframe of the fuzzy matrix values
+#' @param fuzz_matrix a dataframe of the fuzzy matrix values
 #'
 #' @returns a dataframe with accuracy measures
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' generate_theta_metrics(datafolder, fmat)
+#' generate_theta_metrics(datafolder, fuzz_matrix)
 #' }
-generate_theta_metrics = function(datafolder, fmat) {
+generate_theta_metrics = function(datafolder, fuzz_matrix) {
 
   #datafolder = i
 
@@ -32,7 +32,7 @@ generate_theta_metrics = function(datafolder, fmat) {
 
     allthetas <- purrr::map(levels(theta_vals), function(th){
 
-      tacc <- acc_metrics(pred_all, fuzzmatrx = fmat, theta = as.numeric(th))  |>
+      tacc <- acc_metrics(pred_all, fuzz_matrix = fuzz_matrix, theta = as.numeric(th))  |>
         dplyr::mutate(theta = th)
 
     })|> dplyr::bind_rows()
@@ -124,7 +124,7 @@ select_theta_threshold <- function(allthetas){
 #'
 #' @param bgc_pts_subzone preppare list of traingin points for each BGC or forest non forest type
 #' @param out_dir the output directory
-#' @param fmat a dataframe of the fuzzy matrix values
+#' @param fuzz_matrix a dataframe of the fuzzy matrix values
 #' @param overwrite logical if TRUE will overwrite the compiled theta results file
 #'
 #' @returns an output directory (invisible)
@@ -132,10 +132,10 @@ select_theta_threshold <- function(allthetas){
 #'
 #' @examples
 #' \dontrun{
-#' run_theta_metrics(bgc_pts_subzone, out_dir, fmat, overwrite = FALSE)
+#' run_theta_metrics(bgc_pts_subzone, out_dir, fuzz_matrix, overwrite = FALSE)
 #'}
 #'
-run_theta_metrics <- function(bgc_pts_subzone, out_dir, fmat, overwrite = FALSE) {
+run_theta_metrics <- function(bgc_pts_subzone, out_dir, fuzz_matrix, overwrite = FALSE) {
 
   bgcs <- names(bgc_pts_subzone)
 

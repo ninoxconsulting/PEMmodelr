@@ -6,7 +6,7 @@
 \usage{
 run_base_model(
   bgc_pts_subzone,
-  fmat = NA,
+  fuzz_matrix = NA,
   covars = covars,
   use_neighbours = FALSE,
   detailed_output = TRUE,
@@ -16,15 +16,18 @@ run_base_model(
 \arguments{
 \item{bgc_pts_subzone}{A list of prepped data. Output of \code{prep_model_tps()}}
 
-\item{fmat}{a data table with fuzzy metrics, generated using the \code{generate_fuzzy_matrix()} function}
+\item{fuzz_matrix}{a data table with fuzzy metrics, generated using the
+\code{generate_fuzzy_matrix()} function}
 
 \item{covars}{a character vector of covariates to include in the model}
 
 \item{use_neighbours}{if you want to incluse all neighbours in the calculation}
 
-\item{detailed_output}{OPTIONAL:TRUE/FALSE if you want to output all raw values this is used to determine optimum theta values}
+\item{detailed_output}{OPTIONAL:TRUE/FALSE if you want to output all raw values
+this is used to determine optimum theta values}
 
-\item{out_dir}{OPTIONAL: only needed if detailed_output = TRUE. location of filepath there detailed outputs to be stored}
+\item{out_dir}{OPTIONAL: only needed if detailed_output = TRUE. location of
+filepath there detailed outputs to be stored}
 }
 \value{
 a list of dataframes with the accuracy metrics for each model
@@ -34,6 +37,6 @@ Run the basic model
 }
 \examples{
 \dontrun{
-run_base_model(bgc_pts_subzone, fmat, covars, use_neighbours, detailed_output = FALSE, out_dir)
+run_base_model(bgc_pts_subzone, fuzz_matrix, covars, use_neighbours, detailed_output = FALSE, out_dir)
 }
 }

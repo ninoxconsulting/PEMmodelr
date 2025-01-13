@@ -1,11 +1,14 @@
 #' Run the basic model
 #'
 #' @param bgc_pts_subzone A list of prepped data. Output of `prep_model_tps()`
-#' @param fuzz_matrix a data table with fuzzy metrics, generated using the `generate_fuzzy_matrix()` function
+#' @param fuzz_matrix a data table with fuzzy metrics, generated using the
+#'  `generate_fuzzy_matrix()` function
 #' @param covars a character vector of covariates to include in the model
 #' @param use_neighbours if you want to incluse all neighbours in the calculation
-#' @param detailed_output OPTIONAL:TRUE/FALSE if you want to output all raw values this is used to determine optimum theta values
-#' @param out_dir OPTIONAL: only needed if detailed_output = TRUE. location of filepath there detailed outputs to be stored
+#' @param detailed_output OPTIONAL:TRUE/FALSE if you want to output all raw values
+#' this is used to determine optimum theta values
+#' @param out_dir OPTIONAL: only needed if detailed_output = TRUE. location of
+#' filepath there detailed outputs to be stored
 #'
 #' @returns a list of dataframes with the accuracy metrics for each model
 #' @export

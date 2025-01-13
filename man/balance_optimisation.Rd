@@ -10,7 +10,7 @@ balance_optimisation(
   smote_iterations = smote_iterations,
   mtry = mtry,
   min_n = min_n,
-  fuzz_matrix = NA,
+  fuzz_matrix = fuzz_matrix,
   out_dir = out_dir,
   use_neighbours = FALSE
 )

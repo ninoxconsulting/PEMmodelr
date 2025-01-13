@@ -145,7 +145,7 @@ balance_optimisation <- function(train_data = train_data,
 
             cli::cli_alert_info("generating accuracy metrics for slice: {k}")
 
-            acc <- acc_metrics(pred_all, fuzzmatrx = fuzz_matrix)|>
+            acc <- acc_metrics(pred_all, fuzz_matrix = fuzz_matrix)|>
               dplyr::mutate(slice = k,
                             oob = oob)
 
@@ -242,7 +242,7 @@ balance_optimisation <- function(train_data = train_data,
 
           cli::cli_alert_info("generating accuracy metrics for slice:{ k }")
 
-          acc <- acc_metrics(pred_all, fuzzmatrx = fuzz_matrix)|>
+          acc <- acc_metrics(pred_all, fuzz_matrix = fuzz_matrix)|>
             dplyr::mutate(slice = k,
                           oob = oob)
 
@@ -337,7 +337,7 @@ balance_optimisation <- function(train_data = train_data,
 
           cli::cli_alert_info("generating accuracy metrics for slice:{ k }")
 
-          acc <- acc_metrics(pred_all, fuzzmatrx = fuzz_matrix)|>
+          acc <- acc_metrics(pred_all, fuzz_matrix = fuzz_matrix)|>
             dplyr::mutate(slice = k,
                           oob = oob)
 
