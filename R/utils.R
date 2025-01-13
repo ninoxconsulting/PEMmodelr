@@ -109,7 +109,7 @@ select_pure_training <- function(tps) {
 
 # combine into a single file:
 
-combine_balance_outputs = function(out_bgc_dir){
+combine_balance_outputs <- function(out_bgc_dir){
 
   bal_dir <- fs::path(out_bgc_dir, "balance")
 

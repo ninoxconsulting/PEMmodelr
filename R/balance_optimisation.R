@@ -40,7 +40,7 @@ balance_optimisation <- function(train_data = train_data,
   print("base model")
 
   base_model(train_data, fuzz_matrix, mtry = mtry, min_n = min_n,
-             use_neighbours = use_neighbours,
+             use_neighbours =  FALSE,
              detailed_output = FALSE,
              out_dir = out_folder)
 
