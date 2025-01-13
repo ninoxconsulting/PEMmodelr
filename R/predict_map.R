@@ -109,13 +109,13 @@ predict_map <- function(model,
   r_tiles <- list.files(fs::path(out_dir, "best"), pattern = ".tif$", full.names = TRUE)
   rsrc <- terra::sprc(r_tiles)
   m <- terra::mosaic(rsrc, fun = "min")
-  terra::writeRaster(m, fs::path(out_dir, model_name_label))
+  terra::writeRaster(m, fs::path(out_dir, model_name_label), overwrite = TRUE)
 
   if (probability == TRUE) {
     r_tiles <- list.files(fs::path(out_dir, "probability"), pattern = ".tif$", full.names = TRUE)
     rsrc <- terra::sprc(r_tiles)
     m <- terra::mosaic(rsrc, fun = "min")
-    terra::writeRaster(m, fs::path(out_dir, paste0("probability_", model_name_label)))
+    terra::writeRaster(m, fs::path(out_dir, paste0("probability_", model_name_label)), overwrite = TRUE)
   }
 
   return(TRUE)
