@@ -84,7 +84,7 @@ run_final_model <- function (
     }
 
   })
-  return(final_bgc)
+  return(TRUE)
 }
 
 

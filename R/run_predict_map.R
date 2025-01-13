@@ -2,6 +2,7 @@
 #'
 #' @param model_type A character defining the type of model to run (f = forested)
 #' @param model_dir A character defining the directory of the model
+#' @param model_name A character defining the name of the model. default = "final_model_base.rds"
 #' @param covars A character vector of the covariates to use
 #' @param cov_dir A character defining the directory of the covariates
 #' @param tile_dir A character defining the directory of the tiles
@@ -16,6 +17,7 @@
 #' run_predict_map(
 #'   model_type = "f",
 #'   model_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel, "20_f"),
+#'   model_name = "final_model_base.rds",
 #'   covars = utils::read.csv(fs::path(model_dir, "reduced_covariate_list.csv")) |> dplyr::pull(),
 #'   cov_dir = fs::path(PEMprepr::read_fid()$dir_1020_covariates$path_rel, "5m"),
 #'   tile_dir = fs::path(PEMprepr::read_fid()$dir_30_model$path_rel, "tiles"),
@@ -25,6 +27,7 @@
 run_predict_map <- function(
     model_type = NA,
     model_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel, "20_f"),
+    model_name = "final_model_base.rds",
     covars = utils::read.csv(fs::path(model_dir, "reduced_covariate_list.csv")) |> dplyr::pull(),
     cov_dir = fs::path(PEMprepr::read_fid()$dir_1020_covariates$path_rel, "5m"),
     tile_dir = fs::path(PEMprepr::read_fid()$dir_30_model$path_rel, "tiles"),
@@ -34,6 +37,7 @@ run_predict_map <- function(
 
   # if "tiles exist remove this as vector
   submods <- submods[submods != "tiles"]
+  model_name_label = gsub(".rds", ".tif", model_name)
 
   # set up raster stack
   rast_list <- list.files(cov_dir, pattern = ".sdat$|.tif$", recursive = T, full.names = T)
@@ -54,7 +58,7 @@ run_predict_map <- function(
   map_bgc <- purrr::map(submods, function(b) {
     cli::cli_alert_info("Predicting {b} maps")
 
-    mfit <- fs::dir_ls(file.path(model_dir, b), type = "file", recurse = TRUE, regexp = "final_model_base.rds$")
+    mfit <- fs::dir_ls(file.path(model_dir, b), type = "file", recurse = TRUE, regexp = paste0(model_name, "$"))
     model <- readRDS(fs::path(mfit))
 
     out_dir_map <- fs::path(model_dir, b, "map")
@@ -63,11 +67,11 @@ run_predict_map <- function(
       dir.create(fs::path(out_dir_map))
     }
 
-    predict_map(model, out_dir = out_dir_map, rstack = rstack, tile_dir = tile_dir, probability = FALSE)
+    predict_map(model, out_dir = out_dir_map, rstack = rstack, tile_dir = tile_dir, probability = FALSE, model_name_label = model_name_label)
   })
 
   if (model_type == "f") {
-    combine_sub_maps(bec_shp, model_dir)
+    combine_sub_maps(bec_shp, model_dir, model_name_label)
   }
 
   cli::cli_alert_success("Maps have been generated")
@@ -79,7 +83,9 @@ run_predict_map <- function(
 # combine bgc maps for forested areas
 combine_sub_maps <- function(
     bec_shp = NA,
-    model_dir = model_dir) {
+    model_dir = model_dir,
+    model_name_label = model_name_label
+    ) {
   # set a list of all sub models to run (ie. BGC folders)
   submods <- basename(fs::dir_ls(model_dir, type = "directory"))
 
@@ -102,7 +108,7 @@ combine_sub_maps <- function(
   combo_map <- lapply(submods, function(f) {
     # f <- bgcs[[2]]
 
-    rtemp <- terra::rast(file.path(model_dir, f, "map", "best_map.tif"))
+    rtemp <- terra::rast(file.path(model_dir, f, "map", model_name_label))
 
     rtemp[is.na(rtemp[])] # <- 0
     names(rtemp) <- "pred_no"
@@ -144,7 +150,7 @@ combine_sub_maps <- function(
 
   if (!dir.exists(out_folder)) dir.create(out_folder)
 
-  terra::writeRaster(m, fs::path(out_folder, "best_map.tif"), overwrite = TRUE)
+  terra::writeRaster(m, fs::path(out_folder, model_name_label), overwrite = TRUE)
 
   utils::write.csv(rkey, fs::path(out_folder, "response_names.csv"))
 

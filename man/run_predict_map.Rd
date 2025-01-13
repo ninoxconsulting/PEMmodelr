@@ -7,6 +7,7 @@
 run_predict_map(
   model_type = NA,
   model_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel, "20_f"),
+  model_name = "final_model_base.rds",
   covars = dplyr::pull(utils::read.csv(fs::path(model_dir,
     "reduced_covariate_list.csv"))),
   cov_dir = fs::path(PEMprepr::read_fid()$dir_1020_covariates$path_rel, "5m"),
@@ -19,6 +20,8 @@ run_predict_map(
 \item{model_type}{A character defining the type of model to run (f = forested)}
 
 \item{model_dir}{A character defining the directory of the model}
+
+\item{model_name}{A character defining the name of the model. default = "final_model_base.rds"}
 
 \item{covars}{A character vector of the covariates to use}
 
@@ -40,6 +43,7 @@ Generate maps from predicted model and output map or combined maps
 run_predict_map(
   model_type = "f",
   model_dir = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel, "20_f"),
+  model_name = "final_model_base.rds",
   covars = utils::read.csv(fs::path(model_dir, "reduced_covariate_list.csv")) |> dplyr::pull(),
   cov_dir = fs::path(PEMprepr::read_fid()$dir_1020_covariates$path_rel, "5m"),
   tile_dir = fs::path(PEMprepr::read_fid()$dir_30_model$path_rel, "tiles"),

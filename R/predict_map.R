@@ -5,6 +5,7 @@
 #' @param tile_dir location of template tiles
 #' @param rstack spatRast stack of all covars
 #' @param probability TRUE or FALSE if probability rasters are to be exported
+#' @param model_name_label name of the model file
 #'
 #' @return TRUE
 #' @export
@@ -13,7 +14,12 @@
 #' \dontrun{
 #' predict_map(rf_fit, out_dir, tile_dir, rstack, probability = FALSE)
 #'}
-predict_map <- function(model, out_dir, tile_dir, rstack, probability = FALSE) {
+predict_map <- function(model,
+                        out_dir,
+                        tile_dir,
+                        rstack,
+                        probability = FALSE,
+                        model_name_label = "map.tif") {
   # extract fit
   rf_fit <- workflows::extract_fit_engine(model)
   .pred_class <- rf_fit$forest$levels
@@ -88,7 +94,7 @@ predict_map <- function(model, out_dir, tile_dir, rstack, probability = FALSE) {
 
         out <- tidyterra::as_spatraster(r_out, crs = "epsg:3005")
 
-        terra::writeRaster(out, fs::path(out_dir, "best", out_name), overwrite = T)
+        terra::writeRaster(out, fs::path(out_dir, "best", out_name), overwrite = TRUE)
       }
     }
 
@@ -103,13 +109,13 @@ predict_map <- function(model, out_dir, tile_dir, rstack, probability = FALSE) {
   r_tiles <- list.files(fs::path(out_dir, "best"), pattern = ".tif$", full.names = TRUE)
   rsrc <- terra::sprc(r_tiles)
   m <- terra::mosaic(rsrc, fun = "min")
-  terra::writeRaster(m, fs::path(out_dir, "best_map.tif"))
+  terra::writeRaster(m, fs::path(out_dir, model_name_label))
 
   if (probability == TRUE) {
     r_tiles <- list.files(fs::path(out_dir, "probability"), pattern = ".tif$", full.names = TRUE)
     rsrc <- terra::sprc(r_tiles)
     m <- terra::mosaic(rsrc, fun = "min")
-    terra::writeRaster(m, fs::path(out_dir, "probability_map.tif"))
+    terra::writeRaster(m, fs::path(out_dir, paste0("probability_", model_name_label)))
   }
 
   return(TRUE)

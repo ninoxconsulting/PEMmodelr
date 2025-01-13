@@ -4,7 +4,14 @@
 \alias{predict_map}
 \title{Predict Map from model}
 \usage{
-predict_map(model, out_dir, tile_dir, rstack, probability = FALSE)
+predict_map(
+  model,
+  out_dir,
+  tile_dir,
+  rstack,
+  probability = FALSE,
+  model_name_label = "map.tif"
+)
 }
 \arguments{
 \item{model}{rf model file}
@@ -16,6 +23,8 @@ predict_map(model, out_dir, tile_dir, rstack, probability = FALSE)
 \item{rstack}{spatRast stack of all covars}
 
 \item{probability}{TRUE or FALSE if probability rasters are to be exported}
+
+\item{model_name_label}{name of the model file}
 }
 \value{
 TRUE
