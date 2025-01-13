@@ -36,7 +36,7 @@ run_predict_map <- function(
   submods <- basename(fs::dir_ls(model_dir, type = "directory"))
 
   # if "tiles exist remove this as vector
-  submods <- submods[submods != "tiles"]
+  submods <- submods[submods != "map"]
   model_name_label = gsub(".rds", ".tif", model_name)
 
   # set up raster stack
