@@ -65,12 +65,7 @@ base_model <- function(train_data,
     # k = levels(slices)[3]
 
     # create training set
-    ref_train <- ref_dat |>
-      dplyr::filter(!.data$slice %in% k) |>
-      dplyr::filter(is.na(.data$mapunit2)) |> # train only on pure calls
-      dplyr::filter(.data$position == "Orig") |>
-      dplyr::select(-.data$id, -.data$slice, -.data$mapunit2, -.data$position, -.data$transect_id) |>
-      droplevels()
+    ref_train <- .create_training_set(ref_dat, k)
 
     MU_count <- ref_train |>
       dplyr::count(.data$mapunit1) |>
@@ -80,19 +75,7 @@ base_model <- function(train_data,
       dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
       droplevels()
 
-    if (use_neighbours) {
-      # test set
-      ref_test <- ref_dat |>
-        dplyr::filter(.data$slice %in% k) |>
-        dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
-        droplevels()
-    } else {
-      ref_test <- ref_dat |>
-        dplyr::filter(.data$slice %in% k) |>
-        dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
-        dplyr::filter(.data$position == "Orig") |>
-        droplevels()
-    }
+    ref_test <- .create_test_set(ref_dat, k, use_neighbours, MU_count)
 
     ref_id <- ref_test |> dplyr::select(.data$id, .data$mapunit1, .data$mapunit2)
 
@@ -117,26 +100,9 @@ base_model <- function(train_data,
 
     pred_all <- cbind(ref_id, .pred_class = preds$.pred_class)
 
-    pred_all <- pred_all |> dplyr::mutate(
-      mapunit1 = as.character(.data$mapunit1),
-      mapunit2 = as.character(.data$mapunit2),
-      .pred_class = as.character(.data$.pred_class)
-    )
-
-    # switch out the predicted Nf units for "nonfor" catergory.
-    pred_all <- pred_all |>
-      dplyr::mutate(
-        mapunit1 = ifelse(.data$mapunit1 %in% nf_mapunits, "nonfor", .data$mapunit1),
-        mapunit2 = ifelse(.data$mapunit2 %in% nf_mapunits, "nonfor", .data$mapunit2),
-        .pred_class = ifelse(.data$.pred_class %in% nf_mapunits, "nonfor", .data$.pred_class)
-      )
-
-    # harmonize factor levels
-    pred_all <- .harmonize_factors(pred_all)
-    pred_all$mapunit2 <- as.factor(pred_all$mapunit2)
+    pred_all <- .prep_model_output(pred_all, nf_mapunits)
 
     cli::cli_alert_info("generating accuracy metrics for slice:{ k }")
-    #print(paste0("generating accuracy metrics for slice:", k))
 
     if (detailed_output == TRUE) {
       saveRDS(pred_all, fs::path(out_dir, paste0("predictions_", k)))

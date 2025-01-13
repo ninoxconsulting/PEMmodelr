@@ -84,9 +84,9 @@ select_best_acc <- function(aresults){
 
 
   best_balance_as <- best_balance_as |>
-    tidyr::gather(key = "column", value = "value_2", -balance) |>
+    tidyr::gather(key = "column", value = "value_2", -.data$balance) |>
     dplyr::group_by(.data$column)|>
-    dplyr::slice(which.max(value_2))
+    dplyr::slice(which.max(.data$value_2))
 
 
   # check the difference between raw and best
@@ -95,7 +95,7 @@ select_best_acc <- function(aresults){
     dplyr::full_join(raw_best_balance , by = "column") |>
     rbind(max_raw_overall) |>
     dplyr::rowwise() |>
-    dplyr::mutate(pcdelta = round((value_2 - value_1) *100,1))|>
+    dplyr::mutate(pcdelta = round((.data$value_2 - .data$value_1) *100,1))|>
     dplyr::rename("maxmetric" = .data$column,
                   "max" = .data$value_2,
                   "base" = .data$value_1) |>
@@ -110,9 +110,9 @@ select_best_acc <- function(aresults){
       stringr::str_detect(.data$balance, "sm") ~ 'sm',
       .default = NA)) |>
     dplyr::rowwise() |>
-    dplyr::mutate(ds_ratio = ifelse(!is.na(ds), stringr::str_split(balance, "_")[[1]][2],NA),
-                  sm_ratio = ifelse(!is.na(sm) & !is.na(ds), stringr::str_split(balance, "_")[[1]][4],NA))|>
-    dplyr::mutate(sm_ratio = ifelse(!is.na(sm) & is.na(ds), stringr::str_split(balance, "_")[[1]][2],sm_ratio))
+    dplyr::mutate(ds_ratio = ifelse(!is.na(.data$ds), stringr::str_split(.data$balance, "_")[[1]][2],NA),
+                  sm_ratio = ifelse(!is.na(.data$sm) & !is.na(.data$ds), stringr::str_split(.data$balance, "_")[[1]][4],NA))|>
+    dplyr::mutate(sm_ratio = ifelse(!is.na(.data$sm) & is.na(.data$ds), stringr::str_split(.data$balance, "_")[[1]][2], .data$sm_ratio))
 
   return(best_metrics)
 

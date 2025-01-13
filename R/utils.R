@@ -118,13 +118,13 @@ combine_balance_outputs = function(out_bgc_dir){
   data_list <- alldata_list[file.info(alldata_list)$size>10]
 
   aresults <- purrr::map(data_list, function(k){
-    temp = read.csv(k)
+    temp = utils::read.csv(k)
     temp <- temp |>  dplyr::mutate(filename = paste(basename(k)))
     temp
   })|> dplyr::bind_rows()
 
 
-  aresults <- aresults |> dplyr::mutate(balance = gsub(".csv","", filename ))
+  aresults <- aresults |> dplyr::mutate(balance = gsub(".csv","", .data$filename ))
 
   return(aresults)
 
