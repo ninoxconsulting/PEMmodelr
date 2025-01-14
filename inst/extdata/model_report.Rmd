@@ -114,7 +114,7 @@ trDat_slices <- trDat|>
   group_by (slice)|> 
   dplyr::summarise(n.transect = length(unique(transect_id)),
                    n.sites = length(unique(tid)))|> 
-  pivot_longer(cols = c("n.transect", "n.sites"), names_to = "type", values_to = "number")
+  tidyr::pivot_longer(cols = c("n.transect", "n.sites"), names_to = "type", values_to = "number")
 
 ggplot2::ggplot(trDat_slices, ggplot2::aes(slice, number, fill = type)) +
   ggplot2::geom_bar(stat = "identity", position = "dodge") +
@@ -245,7 +245,7 @@ We can compare map unit accuracy levels to assess under or acceptable performanc
 #   dplyr::select(mapunit1, spat_p, spat_pa, spat_paf)
 #
 # mu_long <- mu_acc|> 
-#      pivot_longer(cols = where(is.numeric), names_to = "accuracy_type", values_to = "value")|> 
+#      tidyr::pivot_longer(cols = where(is.numeric), names_to = "accuracy_type", values_to = "value")|> 
 #   mutate(accuracy_label = sub(".*_", "", accuracy_type))%>%
 #   mutate(valuepc = value*100)
 #
