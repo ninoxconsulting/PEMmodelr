@@ -111,7 +111,7 @@ ggplot2::ggplot(trDat_sumnf  , ggplot2::aes(mapunit1, freq)) +
   colorspace::scale_fill_discrete_sequential(palette = "Light Grays")
 
 trDat_slices <- trDat|> 
-  group_by (slice)|> 
+  dplyr::group_by (slice)|> 
   dplyr::summarise(n.transect = length(unique(transect_id)),
                    n.sites = length(unique(tid)))|> 
   tidyr::pivot_longer(cols = c("n.transect", "n.sites"), names_to = "type", values_to = "number")
