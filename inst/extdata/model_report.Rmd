@@ -84,7 +84,7 @@ trDat_sum <- trDat|>
 
 ggplot2::ggplot(trDat_sum , ggplot2::aes(mapunit1, freq)) +
   ggplot2::geom_bar(stat = "identity") +
-  ggplot2::geom_text(aes(mapunit1, freq, label = freq), vjust=-0.25)+
+  ggplot2::geom_text(ggplot2::aes(mapunit1, freq, label = freq), vjust=-0.25)+
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))+
   colorspace::scale_fill_discrete_sequential(palette = "Light Grays")
 
@@ -106,7 +106,7 @@ trDat_sumnf <- trDatnf |>
 
 ggplot2::ggplot(trDat_sumnf  , ggplot2::aes(mapunit1, freq)) +
   ggplot2::geom_bar(stat = "identity") +
-  ggplot2::geom_text(aes(mapunit1, freq, label = freq), vjust=-0.25)+
+  ggplot2::geom_text(ggplot2::aes(mapunit1, freq, label = freq), vjust=-0.25)+
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))+
   colorspace::scale_fill_discrete_sequential(palette = "Light Grays")
 
