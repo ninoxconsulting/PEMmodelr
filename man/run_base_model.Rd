@@ -9,6 +9,7 @@ run_base_model(
   fuzz_matrix = NA,
   covars = covars,
   use_neighbours = FALSE,
+  report = FALSE,
   detailed_output = TRUE,
   out_dir = NA
 )
@@ -22,6 +23,8 @@ run_base_model(
 \item{covars}{a character vector of covariates to include in the model}
 
 \item{use_neighbours}{if you want to incluse all neighbours in the calculation}
+
+\item{report}{logical. If TRUE, a report will be generated}
 
 \item{detailed_output}{OPTIONAL:TRUE/FALSE if you want to output all raw values
 this is used to determine optimum theta values}

@@ -34,3 +34,27 @@ final_model_report <- function(mbaldf, final_data, final_model, out_bgc_dir){
   ## open the report
   #browseURL(paste0(paste0(out_bgc_dir,"/","final_model_report.html")))
 }
+
+
+
+model_report <- function(train_data, fuzz_matrix, use_neighbours,
+                         mtry, min_n, baseout, out_bgc_dir){
+
+  ifelse(!dir.exists(file.path(out_bgc_dir)),
+         dir.create(file.path(out_bgc_dir)), FALSE)
+
+  RMD <- fs::path_package("PEMmodelr", "extdata/model_report.rmd")
+
+  rmarkdown::render(RMD,
+                    params = list(train_data = train_data,
+                                  fuzz_matrix = fuzz_matrix,
+                                  use_neighbours = use_neighbours,
+                                  mtry = mtry,
+                                  min_n = min_n,
+                                  baseout = baseout,
+                                  out_bgc_dir = out_bgc_dir),
+                    output_dir = out_bgc_dir)                ## where to save the report
+
+  ## open the report
+  #browseURL(paste0(paste0(out_bgc_dir,"/","final_model_report.html")))
+}
