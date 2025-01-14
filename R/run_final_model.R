@@ -80,7 +80,7 @@ run_final_model <- function (
 
 
     if(report){
-      # final_model_report(bgc_bal, final_data, final_model, outDir)
+       final_model_report(mbaldf, final_data, final_model, out_bgc_dir)
     }
 
   })
