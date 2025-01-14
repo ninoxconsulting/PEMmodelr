@@ -1,0 +1,104 @@
+---
+title: "final_model_report"
+output: html_document
+params:
+  mbaldf: mbaldf
+  final_data: final_data
+  final_model: final_model
+  out_bgc_dir: out_bgc_dir
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache=FALSE,
+                      warning = FALSE, message = FALSE,
+                      results = 'show',
+                      eval = TRUE)  ## flag eval = false for quick text edits
+
+```
+
+
+```{r setup libs, echo = FALSE}
+## Load library
+# library(data.table)
+# library(rmarkdown)
+# library(knitr)
+# library(dplyr)
+# library(ggplot2)
+# library(vip)
+
+mbaldf <- params$mbaldf
+final_data <- params$final_data
+final_model <- params$final_model
+out_bgc_dir <- params$out_bgc_dir
+# 
+# ## testing lines
+#final_data <- final_data
+#final_model <- final_model
+#out_bgc_dir = out_bgc_dir
+#mbaldf <- mbaldf
+
+```
+
+
+```{r summary, echo = FALSE, include = TRUE}
+
+covs <- names(final_data)
+covs <- covs[-grep(covs, pattern = "mapunit1")]
+
+```
+
+
+This model uses the following parameters: 
+
+* **balance option** : `r mbaldf$balance`
+* **mapunit:** 'mapunit1'
+* **model covariates : ** `r covs`
+
+
+## Response variable: 
+
+The following training points and frequency of points were used in the model.
+
+```{r summary1, echo = FALSE, include = TRUE}
+
+trDat <- final_data
+
+munits <- unique(trDat$mapunit1)
+nf_mapunits <- grep(munits, pattern = "_\\d", value = TRUE, invert = TRUE)
+
+# switch out the predicted Nf units for "nonfor" catergory.
+trDatnf <- trDat |> 
+    dplyr::mutate(mapunit1 = ifelse(mapunit1  %in% nf_mapunits, "nonfor", mapunit1 ))
+
+
+# calculate summary of raw training data set
+trDat_sum <- trDat |> 
+  dplyr::group_by(mapunit1) |> 
+  dplyr::summarise(freq = dplyr::n()) |> 
+  dplyr::mutate(prop = round(freq/sum(freq),3))
+
+ggplot2::ggplot(trDat, ggplot2::aes(mapunit1)) +
+  ggplot2::geom_bar() + 
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))+
+  colorspace::scale_fill_discrete_sequential(palette = "Light Grays")
+
+ggplot2::ggplot(trDatnf, ggplot2::aes(mapunit1)) +
+  ggplot2::geom_bar() + 
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))+
+  colorspace::scale_fill_discrete_sequential(palette = "Light Grays")
+
+```
+
+
+
+## Model results summary
+
+```{r, model results, echo = FALSE, eval = TRUE}
+# variable importance plot 
+final_fit  <- tune::extract_fit_parsnip(final_model)
+
+xx <- final_fit |>    vip::vip(num_features = 50)
+xx
+
+
+```

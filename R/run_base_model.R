@@ -5,6 +5,7 @@
 #'  `generate_fuzzy_matrix()` function
 #' @param covars a character vector of covariates to include in the model
 #' @param use_neighbours if you want to incluse all neighbours in the calculation
+#' @param report logical. If TRUE, a report will be generated
 #' @param detailed_output OPTIONAL:TRUE/FALSE if you want to output all raw values
 #' this is used to determine optimum theta values
 #' @param out_dir OPTIONAL: only needed if detailed_output = TRUE. location of
@@ -24,8 +25,10 @@ run_base_model <- function(
     fuzz_matrix = NA,
     covars = covars,
     use_neighbours = FALSE,
+    report = FALSE,
     detailed_output = TRUE,
     out_dir = NA) {
+
   model_bgc <- lapply(names(bgc_pts_subzone), function(i) {
     # i <- names(bgc_pts_subzone[1])
     tdat <- bgc_pts_subzone[[i]]
@@ -59,8 +62,11 @@ run_base_model <- function(
 
     utils::write.csv(baseout, fs::path(out_bgc_dir, "acc_base_results.csv"))
 
+    if(report){
     # generate model accuracy report
-    # model_report(train_data, baseout, outDir)
+    model_report(train_data, fuzz_matrix, use_neighbours,
+                 mtry, min_n, baseout, out_bgc_dir)
+    }
   })
 
   return(out_dir)
