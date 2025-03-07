@@ -5,6 +5,7 @@
 #' @param mtry numeric. This is the output based on output of hyperparamter model tuning (default = ??)
 #' @param min_n numeric. This is the output based on output of hyperparamter model tuning (default = ??)
 #' @param use_neighbours if you want to incluse all neighbours in the calculation
+#' @param extra_pts logical. If TRUE, extra points will be included. Default is FALSE.
 #' @param detailed_output OPTIONAL:TRUE/FALSE if you want to output all raw values this is used to determine optimum theta values
 #' @param out_dir OPTIONAL: only needed if detailed_output = TRUE. location of filepath there detailed outputs to be stored
 #' @return datatable of accuracy metric
@@ -13,7 +14,7 @@
 #' \dontrun{
 #' base_model(train_pts, fuzz_matrix,
 #'   mtry = 14, min_n = 7, use_neighbours = TRUE,
-#'   detailed_output = TRUE, outdir
+#'   detailed_output = TRUE, outdir,  extra_pts = FALSE
 #' )
 #' }
 base_model <- function(train_data,
@@ -28,8 +29,8 @@ base_model <- function(train_data,
   # extra points set - only on pure calls
   if(extra_pts){
     extras <- train_data |>
-      dplyr::filter(data_type == "incidental") |>
-      dplyr::filter(is.na(mapunit2))
+      dplyr::filter(.data$data_type == "incidental") |>
+      dplyr::filter(is.na(.data$mapunit2))
   }
 
   # training set - train only on pure calls

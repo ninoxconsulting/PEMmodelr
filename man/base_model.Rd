@@ -10,6 +10,7 @@ base_model(
   mtry = 14,
   min_n = 7,
   use_neighbours = TRUE,
+  extra_pts = FALSE,
   detailed_output = TRUE,
   out_dir
 )
@@ -25,6 +26,8 @@ base_model(
 
 \item{use_neighbours}{if you want to incluse all neighbours in the calculation}
 
+\item{extra_pts}{logical. If TRUE, extra points will be included. Default is FALSE.}
+
 \item{detailed_output}{OPTIONAL:TRUE/FALSE if you want to output all raw values this is used to determine optimum theta values}
 
 \item{out_dir}{OPTIONAL: only needed if detailed_output = TRUE. location of filepath there detailed outputs to be stored}
@@ -39,7 +42,7 @@ Run the basic model
 \dontrun{
 base_model(train_pts, fuzz_matrix,
   mtry = 14, min_n = 7, use_neighbours = TRUE,
-  detailed_output = TRUE, outdir
+  detailed_output = TRUE, outdir,  extra_pts = FALSE
 )
 }
 }

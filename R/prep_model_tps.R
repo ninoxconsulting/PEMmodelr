@@ -88,8 +88,8 @@ prep_model_tps <- function(
           stringr::str_detect(tolower(.data$mapunit1), as.character(paste0(tolower(i), "_")))  ~ TRUE,
           TRUE ~ FALSE
         )) |>
-        dplyr::filter(keep == TRUE) |>
-        dplyr::select(-keep) |>
+        dplyr::filter(.data$keep == TRUE) |>
+        dplyr::select(-.data$keep) |>
         droplevels()
 
 
