@@ -12,7 +12,8 @@ balance_optimisation(
   min_n = min_n,
   fuzz_matrix = fuzz_matrix,
   out_dir = out_dir,
-  use_neighbours = FALSE
+  use_neighbours = FALSE,
+  extra_pts = FALSE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ balance_optimisation(
 \item{out_dir}{location where the balance output files will be stored}
 
 \item{use_neighbours}{to use all spatial adjoining values, default is FALSE}
+
+\item{extra_pts}{logical. If TRUE, extra points will be included. Default is FALSE.}
 }
 \value{
 outputs files directly to folder

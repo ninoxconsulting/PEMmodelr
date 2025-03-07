@@ -48,6 +48,11 @@ run_base_model <- function(
     train_data <- droplevels(tdat)
 
     # always use best tune per bgc model
+    # check if best balance exist
+    if (!fs::file_exists(fs::path(out_bgc_dir, "best_tuning.csv"))) {
+      cli::cli_abort("No best tuning file found, please run `tune_model_params()` before running `run_balance_optimisation()`")
+    }
+
     best_tune <- utils::read.csv(fs::path(out_bgc_dir, "best_tuning.csv"))
     mtry <- best_tune$mtry
     min_n <- best_tune$min_n

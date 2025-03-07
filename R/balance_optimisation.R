@@ -7,6 +7,7 @@
 #' @param fuzz_matrix fuzzy matrix
 #' @param mtry mtry from best params
 #' @param min_n mtry from best params
+#' @param extra_pts logical. If TRUE, extra points will be included. Default is FALSE.
 #' @param out_dir location where the balance output files will be stored
 #' @return outputs files directly to folder
 #' @export
@@ -26,7 +27,8 @@ balance_optimisation <- function(train_data = train_data,
                                  min_n = min_n,
                                  fuzz_matrix = fuzz_matrix,
                                  out_dir = out_dir,
-                                 use_neighbours = FALSE) {
+                                 use_neighbours = FALSE,
+                                 extra_pts = FALSE) {
   # # create a subfolder to store all balance outputs:
 
   out_folder <- fs::path(out_dir, "balance")
@@ -97,7 +99,16 @@ balance_optimisation <- function(train_data = train_data,
           # print(k)
 
           # create training set
-          ref_train <- .create_training_set(ref_dat, k)
+          ref_train <- .create_training_set(ref_dat, k) |>
+            dplyr::select(-.data$data_type)
+
+          if (extra_pts) {
+            extras <- ref_dat |>
+              dplyr::filter(.data$data_type == "incidental") |>
+              dplyr::select(dplyr::any_of(names(ref_train)))
+
+            ref_train <- rbind(ref_train, extras)
+          }
 
           MU_count <- ref_train |>
             dplyr::count(.data$mapunit1) |>
@@ -107,7 +118,8 @@ balance_optimisation <- function(train_data = train_data,
             dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
             droplevels()
 
-          ref_test <- .create_test_set(ref_dat, k, use_neighbours, MU_count)
+          ref_test <- .create_test_set(ref_dat, k, use_neighbours, MU_count) |>
+            dplyr::select(-.data$data_type)
 
 
           ref_id <- ref_test |> dplyr::select(.data$id, .data$mapunit1, .data$mapunit2)
@@ -196,8 +208,16 @@ balance_optimisation <- function(train_data = train_data,
         print(label)
 
         # create training set
-        ref_train <- .create_training_set(ref_dat, k)
+        ref_train <- .create_training_set(ref_dat, k) |>
+          dplyr::select(-.data$data_type)
 
+        if (extra_pts) {
+          extras <- ref_dat |>
+            dplyr::filter(.data$data_type == "incidental") |>
+            dplyr::select(dplyr::any_of(names(ref_train)))
+
+          ref_train <- rbind(ref_train, extras)
+        }
         MU_count <- ref_train |>
           dplyr::count(.data$mapunit1) |>
           dplyr::filter(.data$n > 10)
@@ -206,7 +226,8 @@ balance_optimisation <- function(train_data = train_data,
           dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
           droplevels()
 
-        ref_test <- .create_test_set(ref_dat, k, use_neighbours, MU_count)
+        ref_test <- .create_test_set(ref_dat, k, use_neighbours, MU_count) |>
+          dplyr::select(-.data$data_type)
 
         ref_id <- ref_test |> dplyr::select(.data$id, .data$mapunit1, .data$mapunit2)
 
@@ -292,7 +313,16 @@ balance_optimisation <- function(train_data = train_data,
         print(label)
 
         # create training set
-        ref_train <- .create_training_set(ref_dat, k)
+        ref_train <- .create_training_set(ref_dat, k) |>
+          dplyr::select(-.data$data_type)
+
+        if (extra_pts) {
+          extras <- ref_dat |>
+            dplyr::filter(.data$data_type == "incidental") |>
+            dplyr::select(dplyr::any_of(names(ref_train)))
+
+          ref_train <- rbind(ref_train, extras)
+        }
 
         MU_count <- ref_train |>
           dplyr::count(.data$mapunit1) |>
@@ -302,7 +332,8 @@ balance_optimisation <- function(train_data = train_data,
           dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
           droplevels()
 
-        ref_test <- .create_test_set(ref_dat, k, use_neighbours, MU_count)
+        ref_test <- .create_test_set(ref_dat, k, use_neighbours, MU_count) |>
+          dplyr::select(-.data$data_type)
 
         ref_id <- ref_test |> dplyr::select(.data$id, .data$mapunit1, .data$mapunit2)
 
