@@ -8,6 +8,7 @@ run_final_model(
   train_data,
   covars = covars,
   model_bal = "base",
+  extra_pts = FALSE,
   report = FALSE,
   out_dir = NA,
   ds_ratio = NA,
@@ -24,7 +25,9 @@ based on the best_balancing csv. Options include:"aspat_paf_theta.5" ,"aspat_paf
 "aspat_paf_theta1" , "aspatial_sum", "spat_paf_theta.5" , "spat_paf_theta0", "spat_paf_theta1",
 "spatial_sum", "overall"}
 
-\item{report}{logical. If TRUE, a report will be generated.{PLACEHOLDER}}
+\item{extra_pts}{logical. If TRUE, extra points will be included. Default is FALSE.}
+
+\item{report}{logical. If TRUE, a report will be generated.}
 
 \item{out_dir}{root level out directory. A sub-folder will be created per
 model type (i.e "fnf" or "bgc level)}

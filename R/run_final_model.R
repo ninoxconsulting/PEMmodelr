@@ -66,7 +66,7 @@ run_final_model <- function (
 
     if(extra_pts){
       extras <- alldat |>
-        dplyr::filter(data_type == "incidental") |>
+        dplyr::filter(.data$data_type == "incidental") |>
         dplyr::filter(is.na(.data$mapunit2))|>
         dplyr::select(.data$mapunit1, dplyr::any_of(covars))
 
