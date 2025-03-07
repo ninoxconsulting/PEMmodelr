@@ -37,6 +37,7 @@ run_predict_map <- function(
 
   # if "tiles exist remove this as vector
   submods <- submods[submods != "map"]
+  submods <- submods[submods != "balance" ]
   model_name_label = gsub(".rds", ".tif", model_name)
 
   # set up raster stack
@@ -90,6 +91,7 @@ combine_sub_maps <- function(
 
   # if "tiles exist remove this as vector
   submods <- submods[submods != "map"]
+  submods <- submods[submods != "balance"]
 
   ## Generate final map by joining BGC maps together
 
