@@ -5,6 +5,7 @@
 #'  `generate_fuzzy_matrix()` function
 #' @param covars a character vector of covariates to include in the model
 #' @param use_neighbours if you want to incluse all neighbours in the calculation
+#' @param extra_pts logical. If TRUE, extra points will be included. Default is FALSE.
 #' @param report logical. If TRUE, a report will be generated
 #' @param detailed_output OPTIONAL:TRUE/FALSE if you want to output all raw values
 #' this is used to determine optimum theta values
@@ -25,6 +26,7 @@ run_base_model <- function(
     fuzz_matrix = NA,
     covars = covars,
     use_neighbours = FALSE,
+    extra_pts = FALSE,
     report = FALSE,
     detailed_output = TRUE,
     out_dir = NA) {
@@ -37,11 +39,11 @@ run_base_model <- function(
 
     tdat <- tdat |>
       dplyr::select(
-        .data$id, .data$mapunit1, .data$mapunit2, .data$position,
+        .data$id, .data$mapunit1, .data$mapunit2, .data$position, .data$data_type,
         .data$transect_id, .data$tid, .data$slice, dplyr::any_of(covars)
       )
 
-    tdat <- tdat[stats::complete.cases(tdat[, 8:length(tdat)]), ]
+    tdat <- tdat[stats::complete.cases(tdat[, 9:length(tdat)]), ]
 
     train_data <- droplevels(tdat)
 
@@ -56,6 +58,7 @@ run_base_model <- function(
       mtry = mtry,
       min_n = min_n,
       use_neighbours = use_neighbours,
+      extra_pts = extra_pts,
       detailed_output = detailed_output,
       out_dir = out_bgc_dir
     )

@@ -21,8 +21,17 @@ base_model <- function(train_data,
                        mtry = 14,
                        min_n = 7,
                        use_neighbours = TRUE,
+                       extra_pts = FALSE,
                        detailed_output = TRUE,
                        out_dir) {
+
+  # extra points set - only on pure calls
+  if(extra_pts){
+    extras <- train_data |>
+      dplyr::filter(data_type == "incidental") |>
+      dplyr::filter(is.na(mapunit2))
+  }
+
   # training set - train only on pure calls
   ref_dat <- train_data |>
     dplyr::filter(!is.na(.data$slice)) |>
@@ -65,7 +74,15 @@ base_model <- function(train_data,
     # k = levels(slices)[3]
 
     # create training set
-    ref_train <- .create_training_set(ref_dat, k)
+    ref_train <- .create_training_set(ref_dat, k)|>
+      dplyr::select(-.data$data_type)
+
+    if(extra_pts){
+      extras <- extras |>
+        dplyr::select(dplyr::any_of(names(ref_train)))
+
+      ref_train <- rbind(ref_train, extras)
+    }
 
     MU_count <- ref_train |>
       dplyr::count(.data$mapunit1) |>
@@ -75,7 +92,8 @@ base_model <- function(train_data,
       dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
       droplevels()
 
-    ref_test <- .create_test_set(ref_dat, k, use_neighbours, MU_count)
+    ref_test <- .create_test_set(ref_dat, k, use_neighbours, MU_count)|>
+      dplyr::select(-.data$data_type)
 
     ref_id <- ref_test |> dplyr::select(.data$id, .data$mapunit1, .data$mapunit2)
 
