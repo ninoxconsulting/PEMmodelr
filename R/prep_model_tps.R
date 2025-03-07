@@ -70,6 +70,7 @@ prep_model_tps <- function(
 
   if (model_type == "f") {
     zones <- c(as.character(unique(prepped_points$bgc_cat)))
+    zones <- zones[!is.na(zones)]
 
     bgc_pts_subzone <- lapply(zones, function(i) {
       # i =  zones[2]
@@ -80,11 +81,21 @@ prep_model_tps <- function(
         fs::dir_create(out_bgc_dir)
       }
 
+      # remove any bec sites series that are not in the bec_zone catergory
       pts_subzone <- prepped_points |>
-        dplyr::filter(stringr::str_detect(.data$tid, as.character(paste0(tolower(i), "_")))) |>
+        dplyr::mutate(keep = dplyr::case_when(
+          stringr::str_detect(.data$tid, as.character(paste0(tolower(i), "_")))  ~ TRUE,
+          stringr::str_detect(tolower(.data$mapunit1), as.character(paste0(tolower(i), "_")))  ~ TRUE,
+          TRUE ~ FALSE
+        )) |>
+        dplyr::filter(keep == TRUE) |>
+        dplyr::select(-keep) |>
         droplevels()
 
+
       # remove any bec sites series that are not in the bec_zone catergory
+      #TODO this may create issue if there is a unit in incidentals and these are not added to model?
+
       munits <- grep(unique(pts_subzone$mapunit1), pattern = "_\\d", value = TRUE, invert = FALSE)
 
       diff_bec_mapunits <- grep(munits, pattern = paste0("^", i, "_"), value = TRUE, invert = TRUE)
