@@ -8,7 +8,8 @@
 #' based on the best_balancing csv. Options include:"aspat_paf_theta.5" ,"aspat_paf_theta0" ,
 #' "aspat_paf_theta1" , "aspatial_sum", "spat_paf_theta.5" , "spat_paf_theta0", "spat_paf_theta1",
 #' "spatial_sum", "overall"
-#' @param report logical. If TRUE, a report will be generated.{PLACEHOLDER}
+#' @param extra_pts logical. If TRUE, extra points will be included. Default is FALSE.
+#' @param report logical. If TRUE, a report will be generated.
 #' @param out_dir root level out directory. A sub-folder will be created per
 #' model type (i.e "fnf" or "bgc level)
 #'
@@ -23,6 +24,7 @@ run_final_model <- function (
     train_data,
     covars = covars,
     model_bal  =  "base",
+    extra_pts = FALSE,
     report = FALSE,
     out_dir = NA,
     ds_ratio = NA,
@@ -62,6 +64,15 @@ run_final_model <- function (
       dplyr::filter(.data$position == "Orig") |>
       dplyr::select(.data$mapunit1, dplyr::any_of(covars))
 
+    if(extra_pts){
+      extras <- alldat |>
+        dplyr::filter(data_type == "incidental") |>
+        dplyr::filter(is.na(.data$mapunit2))|>
+        dplyr::select(.data$mapunit1, dplyr::any_of(covars))
+
+      final_data <- rbind(final_data, extras)
+    }
+
     final_data <- final_data[stats::complete.cases(final_data[, 2:length(final_data)]), ]
 
     final_model <- final_model(
@@ -76,8 +87,7 @@ run_final_model <- function (
     cli::cli_alert_success("model fit complete and written to {out_bgc_dir}")
     saveRDS(final_model, fs::path(out_bgc_dir, paste0("final_model_", model_bal, ".rds")))
 
-    # generate a report if requested
-
+    # generate a report if requests
 
     if(report){
        final_model_report(mbaldf, final_data, final_model, out_bgc_dir)
