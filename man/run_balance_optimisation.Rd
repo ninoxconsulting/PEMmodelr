@@ -11,7 +11,8 @@ run_balance_optimisation(
   out_dir,
   ds_iterations = c(10, 20, 30, 40, 50, 60, 70, 80, 90),
   smote_iterations = c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9),
-  use_neighbours = FALSE
+  use_neighbours = FALSE,
+  extra_pts = FALSE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ run_balance_optimisation(
 \item{smote_iterations}{A vector of numeric downsampling values (0.1 - 0.9), NA if not using}
 
 \item{use_neighbours}{Logical to assign neighbours of not. Default is FALSE}
+
+\item{extra_pts}{logical. If TRUE, extra points will be included. Default is FALSE.}
 }
 \value{
 A list of data tables with the best balance metrics
