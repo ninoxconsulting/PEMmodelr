@@ -11,6 +11,7 @@
 #' @param ds_iterations A vector of numeric downsampling values (10 - 100), NA if not using
 #' @param smote_iterations A vector of numeric downsampling values (0.1 - 0.9), NA if not using
 #' @param use_neighbours Logical to assign neighbours of not. Default is FALSE
+#' @param extra_pts logical. If TRUE, extra points will be included. Default is FALSE.
 #'
 #' @returns A list of data tables with the best balance metrics
 #' @export
@@ -29,7 +30,8 @@ run_balance_optimisation <- function(bgc_pts_subzone,
                                      out_dir,
                                      ds_iterations = c(10, 20, 30, 40, 50, 60, 70, 80, 90),
                                      smote_iterations = c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9),
-                                     use_neighbours = FALSE) {
+                                     use_neighbours = FALSE,
+                                     extra_pts = FALSE) {
   bal_bgc <- lapply(names(bgc_pts_subzone), function(i) {
     # i <- names(bgc_pts_subzone[1])
 
@@ -39,11 +41,11 @@ run_balance_optimisation <- function(bgc_pts_subzone,
 
     tdat <- tdat |>
       dplyr::select(
-        .data$id, .data$mapunit1, .data$mapunit2, .data$position,
+        .data$id, .data$mapunit1, .data$mapunit2, .data$position, .data$data_type,
         .data$transect_id, .data$tid, .data$slice, dplyr::any_of(covars)
       )
 
-    tdat <- tdat[stats::complete.cases(tdat[, 8:length(tdat)]), ]
+    tdat <- tdat[stats::complete.cases(tdat[, 9:length(tdat)]), ]
 
     train_data <- droplevels(tdat)
 
@@ -64,6 +66,7 @@ run_balance_optimisation <- function(bgc_pts_subzone,
       mtry = mtry,
       min_n = min_n,
       use_neighbours = FALSE,
+      extra_pts = extra_pts,
       out_dir = out_bgc_dir
     )
 
