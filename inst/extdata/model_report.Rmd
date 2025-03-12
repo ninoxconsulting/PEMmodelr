@@ -9,6 +9,7 @@ params:
   min_n: min_n
   baseout: baseout
   out_bgc_dir: out_bgc_dir
+  extra_pts: extra_pts
 ---
 
 
@@ -30,7 +31,7 @@ mtry <- params$mtry
 min_n <- params$min_n
 baseout <- params$baseout
 out_bgc_dir <- params$out_bgc_dir
-
+extra_pts <- params$extra_pts
 # 
 # ## testing lines
 #  train_data
@@ -65,7 +66,7 @@ This model uses the following parameters:
 * **min_n:** `r min_n`
 * **use_neighbours:** `r use_neighbours`
 * **output directory:** `r out_dir`
-
+* **extra_pts:** `r extra_pts`
 
 
 ## Response variable:
