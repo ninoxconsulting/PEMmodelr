@@ -28,7 +28,8 @@ final_model_report <- function(mbaldf, final_data, final_model, out_bgc_dir){
                     params = list(mbaldf = mbaldf,
                                   final_data = final_data,
                                   final_model = final_model,
-                                  out_bgc_dir = out_bgc_dir),
+                                  out_bgc_dir = out_bgc_dir,
+                                  extra_pts = extra_pts),
                     output_dir = out_bgc_dir)                ## where to save the report
 
   ## open the report
@@ -52,7 +53,8 @@ model_report <- function(train_data, fuzz_matrix, use_neighbours,
                                   mtry = mtry,
                                   min_n = min_n,
                                   baseout = baseout,
-                                  out_bgc_dir = out_bgc_dir),
+                                  out_bgc_dir = out_bgc_dir,
+                                  extra_pts = extra_pts),
                     output_dir = out_bgc_dir)                ## where to save the report
 
   ## open the report

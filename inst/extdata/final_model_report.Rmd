@@ -6,6 +6,7 @@ params:
   final_data: final_data
   final_model: final_model
   out_bgc_dir: out_bgc_dir
+   extra_pts: extra_pts
 ---
 
 ```{r setup, include=FALSE}
@@ -30,6 +31,7 @@ mbaldf <- params$mbaldf
 final_data <- params$final_data
 final_model <- params$final_model
 out_bgc_dir <- params$out_bgc_dir
+extra_pts <- params$extra_pts
 # 
 # ## testing lines
 #final_data <- final_data
@@ -53,7 +55,7 @@ This model uses the following parameters:
 * **balance option** : `r mbaldf$balance`
 * **mapunit:** 'mapunit1'
 * **model covariates : ** `r covs`
-
+* **extra_points:** `r extra_pts`
 
 ## Response variable: 
 
