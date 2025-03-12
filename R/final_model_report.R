@@ -8,14 +8,14 @@
 #' @param final_model  final model object
 #' @param mbaldf the balance options applied to model
 #' @param out_bgc_dir  output directory  This defaults to the project's root directory OR where the RMD script is saved.
-
+#' @param extra_pts  extra points to be included in the model
 #' @export
 #' @examples
 #' \dontrun{
 #' final_model_report(final_data, final_model, out_bgc_dir)
 #' }
 
-final_model_report <- function(mbaldf, final_data, final_model, out_bgc_dir){
+final_model_report <- function(mbaldf, final_data, final_model, out_bgc_dir, extra_pts){
 
   ## create destination folder
   ifelse(!dir.exists(file.path(out_bgc_dir)),
@@ -39,7 +39,7 @@ final_model_report <- function(mbaldf, final_data, final_model, out_bgc_dir){
 
 
 model_report <- function(train_data, fuzz_matrix, use_neighbours,
-                         mtry, min_n, baseout, out_bgc_dir){
+                         mtry, min_n, baseout, out_bgc_dir, extra_pts){
 
   ifelse(!dir.exists(file.path(out_bgc_dir)),
          dir.create(file.path(out_bgc_dir)), FALSE)

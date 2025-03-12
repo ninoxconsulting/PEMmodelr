@@ -55,7 +55,7 @@ This model uses the following parameters:
 * **balance option** : `r mbaldf$balance`
 * **mapunit:** 'mapunit1'
 * **model covariates : ** `r covs`
-* **extra_points:** `r extra_pts`
+* **extra_pts:** `r extra_pts`
 
 ## Response variable: 
 
