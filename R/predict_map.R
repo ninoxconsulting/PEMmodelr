@@ -81,7 +81,7 @@ predict_map <- function(model,
         pdf <- pdfxy |> dplyr::select(-.data$x, -.data$y)
         pdfid <- pdfxy |> dplyr::select(.data$x, .data$y)
 
-        best_class <- colnames(pdf)[apply(pdf[, 2:length(pdf)], 1, which.max)]
+        best_class <- colnames(pdf)[apply(pdf[, 1:length(pdf)], 1, which.max)]
 
         r_out <- cbind(pdfid, as.factor(best_class))
         names(r_out) <- c("x", "y", ".pred_class")
