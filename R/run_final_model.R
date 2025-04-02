@@ -90,7 +90,7 @@ run_final_model <- function (
     # generate a report if requests
 
     if(report){
-       final_model_report(mbaldf, final_data, final_model, out_bgc_dir)
+       final_model_report(mbaldf, final_data, final_model, out_bgc_dir, extra_pts)
     }
 
   })
