@@ -6,7 +6,7 @@ params:
   final_data: final_data
   final_model: final_model
   out_bgc_dir: out_bgc_dir
-   extra_pts: extra_pts
+  extra_pts: extra_pts
 ---
 
 ```{r setup, include=FALSE}
