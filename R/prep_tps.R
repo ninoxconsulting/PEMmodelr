@@ -35,7 +35,8 @@ prep_tps <- function(
     extra_pts = FALSE,
     bec = sf::st_read(fs::path(PEMprepr::read_fid()$dir_1010_vector$path_rel, "bec.gpkg")),
     min_no = 10) {
-  # assign nap unit name
+
+  # assign nap unit name based on mapkey and atttribute param as column
   mpts <- set_mapunits(allpts, mapkey, attribute)
 
   # assign BEC zone to each point
@@ -46,14 +47,14 @@ prep_tps <- function(
   tpts <- sf::st_join(mpts, bec[, "MAP_LABEL"])
 
   tpts <- tpts |>
-    dplyr::mutate(fnf = ifelse(grepl(paste0(subzones, collapse = "|"), tolower(.data$mapunit1)), "forest", "non_forest")) |>
+    #dplyr::mutate(fnf = ifelse(grepl(paste0(subzones, collapse = "|"), tolower(.data$mapunit1)), "forest", "non_forest")) |>
     dplyr::rename(bgc_cat = .data$MAP_LABEL) |>
     dplyr::rename_all(.funs = tolower)
-
-  if (attribute == "mapunit_fnf") {
-    tpts <- tpts |>
-      dplyr::mutate(fnf = .data$mapunit1)
-  }
+#
+#   if (attribute == "mapunit_fnf") {
+#     tpts <- tpts |>
+#       dplyr::mutate(fnf = .data$mapunit1)
+#   }
 
   # remove points with less than min_no points
   tpts <- .filter_min_mapunits(tpts, min_no, extra_pts)
