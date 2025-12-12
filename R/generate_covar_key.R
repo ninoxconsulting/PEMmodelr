@@ -36,7 +36,7 @@ generate_covar_key <- function(
 
   # define the names of columns by type
   core_names <- c(
-    "id", "fnf", "x", "y", "bgc_cat", "data_type",
+    "id", "x", "y", "bgc_cat", "data_type",
     "mapunit1", "mapunit2", "position", "transect_id", "tid",
     "slice", "geom", "geometry"
   )
@@ -76,7 +76,7 @@ generate_covar_key <- function(
 
   # add covariates that will be generated in the next steps
   covars <- tibble::as_tibble(c(
-    names(att_pts), "id", "fnf", "x", "y", "bgc_cat",
+    names(att_pts), "id", "x", "y", "bgc_cat",
     "position", "geom"
   ))
 
