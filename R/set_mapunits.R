@@ -26,16 +26,35 @@ set_mapunits <- function(tps, mapkey, attribute) {
     cli::cli_abort("{.var {attribute} is not present in mapkey, please check the attribute name and re-run}")
   }
 
-  # TODO: check that all field calls have a basemapunit : TODO
-
   # match the column for map unit based on key
-  mapkeysub <- mapkey |> dplyr::select(.data$fieldcall, dplyr::any_of(attribute))
+  mapkeysub <- mapkey |>
+    dplyr::select(.data$fieldcall, dplyr::any_of(attribute))
   names(mapkeysub) <- c("fieldcall", "mapunit")
 
   # format spaces
   tps <- tps |>
     dplyr::mutate(mapunit1 = stringr::str_trim(.data$mapunit1)) |>
     dplyr::mutate(mapunit2 = stringr::str_trim(.data$mapunit2))
+
+  # check the field call has the equivalent code in mapkey and not blank
+  fieldcalls <- unique(c(tps$mapunit1, tps$mapunit2))
+  mismatch_calls = setdiff(fieldcalls, mapkeysub$fieldcall)
+
+  if(length(mismatch_calls)>1){
+    cli::cat_line
+    cli::cli_abort("Missing values within the mapkey for some fieldcalls {.var {mismatch}}")
+  }
+
+  # check the field call equivalent is not NA in the mapkey
+  key <- mapkeysub |>
+    dplyr::filter(fieldcall %in% fieldcalls) |>
+    dplyr::filter(is.na(mapunit))
+
+
+  if(length(key$fieldcall)>0){
+    cli::cat_line
+    cli::cli_alert_warning("The following field call : {key$fieldcall} is recorded as NA within the mapkey for {.var {attribute}}, please check this is valid")
+  }
 
   # format the mapcalls
   outdata <- tps |>
