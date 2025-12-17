@@ -27,7 +27,7 @@ select_pure_training <- function(tps) {
   MU_count <- tpts |> dplyr::count(.data$mapunit1)
 
   todrop <- MU_count |> dplyr::filter(.data$n < min_no)
-  cli::cli_alert_warning("Dropping the following mapunits from the training points: {todrop$mapunit1}")
+  cli::cli_alert_warning("Dropping the following mapunits from the training points as below minimum number per mapunit threshold: {todrop$mapunit1}")
 
   tokeep <- MU_count |> dplyr::filter(.data$n >= min_no)
 
