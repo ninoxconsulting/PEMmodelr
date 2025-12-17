@@ -47,8 +47,8 @@ set_mapunits <- function(tps, mapkey, attribute) {
 
   # check the field call equivalent is not NA in the mapkey
   key <- mapkeysub |>
-    dplyr::filter(fieldcall %in% fieldcalls) |>
-    dplyr::filter(is.na(mapunit))
+    dplyr::filter(.data$fieldcall %in% fieldcalls) |>
+    dplyr::filter(is.na(.data$mapunit))
 
 
   if(length(key$fieldcall)>0){
