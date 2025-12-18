@@ -47,7 +47,7 @@ acc_metrics <- function(pred_data, fuzz_matrix, theta = NULL) {
 
   fuzzy_lookup <- fuzz_matrix |>
     dplyr::filter(.data$fVal > 0) |>
-    dplyr::mutate(key = paste(Pred, target, sep = "_")) |>
+    dplyr::mutate(key = paste(.data$Pred, .data$target, sep = "_")) |>
     dplyr::select(.data$key, .data$fVal)
 
 
@@ -109,8 +109,8 @@ acc_metrics <- function(pred_data, fuzz_matrix, theta = NULL) {
       ) |>
       dplyr::mutate_if(is.character, as.factor) |>
       dplyr::mutate(trans.tot = .data$trans.tot.new) |>
-      dplyr::select(-.data$trans.tot.new, -mapunit1) |>
-      dplyr::rename("mapunit1" = mapunit.new)
+      dplyr::select(-.data$trans.tot.new, -.data$mapunit1) |>
+      dplyr::rename("mapunit1" =  .data$mapunit.new)
     #   mutate(pred.new = ifelse(mapunit.new %in% add.pred.lev, as.character(mapunit), as.character(.pred_class))) |>
     #     mutate(mapunit = mapunit.new, .pred_class = pred.new)
   }
@@ -131,7 +131,7 @@ acc_metrics <- function(pred_data, fuzz_matrix, theta = NULL) {
 
   pdata <- pdata |>
     dplyr::mutate(no.classes = length(levs)) |>
-    dplyr::select(-pred.tot)
+    dplyr::select(-.data$pred.tot)
 
   # perhaps need predicted tot still in here
 
@@ -203,10 +203,10 @@ acc_metrics <- function(pred_data, fuzz_matrix, theta = NULL) {
     spatial_acc <- spatial_acc |>
       dplyr::rowwise() |>
       dplyr::mutate(
-        !!paste0("spat_p_theta_wt_", th) := th * (1 / no.classes) + (1 - th) * (trans.tot / trans.sum),
-        !!paste0("spat_p_theta_work_", th) := get(paste0("spat_p_theta_wt_", th)) * spat_p,
-        !!paste0("spat_pa_theta_work_", th) := get(paste0("spat_p_theta_wt_", th)) * spat_pa,
-        !!paste0("spat_paf_theta_work_", th) := get(paste0("spat_p_theta_wt_", th)) * spat_paf
+        !!paste0("spat_p_theta_wt_", th) := th * (1 / .data$no.classes) + (1 - th) * (.data$trans.tot / .data$trans.sum),
+        !!paste0("spat_p_theta_work_", th) := get(paste0("spat_p_theta_wt_", th)) * .data$spat_p,
+        !!paste0("spat_pa_theta_work_", th) := get(paste0("spat_p_theta_wt_", th)) * .data$spat_pa,
+        !!paste0("spat_paf_theta_work_", th) := get(paste0("spat_p_theta_wt_", th)) * .data$spat_paf
       ) |>
       dplyr::ungroup()
   }
@@ -263,8 +263,8 @@ acc_metrics <- function(pred_data, fuzz_matrix, theta = NULL) {
   aspat_pred2 <- aspat_pdata |>
     dplyr::mutate_if(is.factor, as.character) |>
     dplyr::mutate(.pred_class = ifelse(.data$.pred_class != .data$mapunit1, as.character(.data$mapunit2), as.character(.data$.pred_class))) |>
-    dplyr::add_count(.pred_class, name = "pred.tot2") |>
-    dplyr::select(.pred_class, pred.tot2) |>
+    dplyr::add_count(.data$.pred_class, name = "pred.tot2") |>
+    dplyr::select(.data$.pred_class, .data$pred.tot2) |>
     dplyr::distinct()
 
   aspatial_pa_acc <- dplyr::left_join(aspatial_acc, aspat_pred2, by = c("mapunit1" = ".pred_class")) |>
@@ -350,7 +350,7 @@ acc_metrics <- function(pred_data, fuzz_matrix, theta = NULL) {
     aspatial_acc_paf <- aspatial_acc_paf |>
       dplyr::rowwise() |>
       dplyr::mutate(
-        !!paste0("aspat_theta_wt_", th) := th * (1 / no.classes) + (1 - th) * (.data$trans.tot / .data$trans.sum),
+        !!paste0("aspat_theta_wt_", th) := th * (1 / .data$no.classes) + (1 - th) * (.data$trans.tot / .data$trans.sum),
         !!paste0("aspat_p_theta_work_", th) := get(paste0("aspat_theta_wt_", th)) * .data$aspat_p,
         !!paste0("aspat_pa_theta_work_", th) := get(paste0("aspat_theta_wt_", th)) * .data$aspat_pa,
         !!paste0("aspat_paf_theta_work_", th) := get(paste0("aspat_theta_wt_", th)) * .data$aspat_paf
@@ -370,14 +370,14 @@ acc_metrics <- function(pred_data, fuzz_matrix, theta = NULL) {
   }
 
   aspatial_acc <- aspatial_acc_paf |>
-    dplyr::select(-contains("work")) |>
-    dplyr::select(-contains("wt"), -.data$trans.tot, -.data$no.classes, -.data$trans.sum) |>
+    dplyr::select(-dplyr::contains("work")) |>
+    dplyr::select(-dplyr::contains("wt"), -.data$trans.tot, -.data$no.classes, -.data$trans.sum) |>
     dplyr::mutate(dplyr::across(dplyr::starts_with("aspat"), round, 3))
 
   accuracy_stats <- dplyr::left_join(spatial_acc, aspatial_acc, by = "mapunit1") |>
     as.data.frame() |>
-    dplyr::select(-contains("wt")) |>
-    dplyr::select(-contains("work")) |>
+    dplyr::select(-dplyr::contains("wt")) |>
+    dplyr::select(-dplyr::contains("work")) |>
     dplyr::select(.data$mapunit1, .data$trans.sum, .data$trans.tot, .data$pred.tot, .data$no.classes, dplyr::everything())
 
   return(accuracy_stats)
