@@ -15,10 +15,10 @@ select_pure_training <- function(tps) {
       cli::cli_alert_warning("Extra points are being included in the training data")
       tpts <- tpts |>
         dplyr::filter(.data$position == "Orig" | .data$data_type == "incidental")
-      length(tpts$order)
+      #length(tpts$order)
     } else {
       tpts <- tpts |> dplyr::filter(.data$position == "Orig")
-      length(tpts$order)
+      #length(tpts$order)
     }
   } else {
     cli::cli_alert_warning("No position column found, assuming all points are original")
