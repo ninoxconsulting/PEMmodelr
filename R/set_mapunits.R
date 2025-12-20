@@ -11,11 +11,6 @@
 #' define_mapunits(tps, mapkey, attribute)
 #' }
 set_mapunits <- function(tps, mapkey, attribute) {
-  #  #  testing lines
-  # tps = allpts
-  #  mpts = mapkey
-  #  attribute = "mapunit_ss_realm"
-  #  # end testing lines
 
   # check if tps is sf
   tps <- PEMprepr:::read_sf_if_necessary(tps)
