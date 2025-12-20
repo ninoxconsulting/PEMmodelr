@@ -15,10 +15,15 @@
 #' \dontrun{
 #' tpts <- prep_tps(
 #'   allpts = sf::st_read(
-#'     fs::path(PEMprepr::read_fid()$dir_20105030_attributed_field_data$path_rel,
-#'     "allpoints_att.gpkg")),
-#'   mapkey = read.csv(fs::path(PEMprepr::read_fid()$dir_3010_inputs$path_rel,
-#'   "mapunitkey_final.csv")),
+#'     fs::path(
+#'       PEMprepr::read_fid()$dir_20105030_attributed_field_data$path_rel,
+#'       "allpoints_att.gpkg"
+#'     )
+#'   ),
+#'   mapkey = read.csv(fs::path(
+#'     PEMprepr::read_fid()$dir_3010_inputs$path_rel,
+#'     "mapunitkey_final.csv"
+#'   )),
 #'   covarkey = covarkey,
 #'   attribute = "mapunit_ss_realm",
 #'   bec = sf::st_read(fs::path(PEMprepr::read_fid()$dir_1010_vector$path_rel, "bec.gpkg")),
@@ -32,7 +37,6 @@ prep_tps <- function(
     attribute = "mapunit_ss_realm",
     bec = sf::st_read(fs::path(PEMprepr::read_fid()$dir_1010_vector$path_rel, "bec.gpkg")),
     min_no = 10) {
-
   # assign nap unit name based on mapkey and atttribute param as column
   mpts <- set_mapunits(allpts, mapkey, attribute)
 
@@ -41,9 +45,8 @@ prep_tps <- function(
   subzones <- tolower(gsub("\\s+", "", subzones))
 
   # check if bgc label already exisits, otherwise intersect BEC zones and format the dataset
-  if("MAP_LABEL"  %in% names(mpts)){
-
-    mpts = mpts |>
+  if ("MAP_LABEL" %in% names(mpts)) {
+    mpts <- mpts |>
       dplyr::select(-.data$MAP_LABEL)
   }
 
@@ -54,9 +57,29 @@ prep_tps <- function(
     dplyr::rename_all(.funs = tolower)
 
   # remove points with less than min_no points
-  tpts <- .filter_min_mapunits(tpts, min_no, extra_pts = TRUE)
 
-  tpts <- tpts |>
+  if ("position" %in% names(tpts)) {
+    subtpts <- tpts |>
+      dplyr::filter(.data$position == "Orig" | .data$data_type == "incidental")
+  } else {
+    cli::cli_alert_warning("No position column found, assuming all points are original")
+    subtpts <- tpts
+  }
+
+  MU_count <- subtpts |> dplyr::count(.data$mapunit1)
+
+  todrop <- MU_count |> dplyr::filter(.data$n < min_no)
+  cli::cli_alert_warning("Dropping the following mapunits from the training points as below minimum number per mapunit threshold: {todrop$mapunit1}")
+
+  tokeep <- MU_count |> dplyr::filter(.data$n >= min_no)
+
+  # filter the units which are below min no in only original dataset
+
+  mdat <- tpts |>
+    dplyr::filter(.data$mapunit1 %in% tokeep$mapunit1)
+
+
+  tpts <- mdat |>
     dplyr::mutate(
       mapunit1 = as.factor(.data$mapunit1),
       mapunit2 = as.factor(.data$mapunit2)
