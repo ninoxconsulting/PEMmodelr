@@ -40,7 +40,13 @@ prep_tps <- function(
   subzones <- unique(bec$MAP_LABEL)
   subzones <- tolower(gsub("\\s+", "", subzones))
 
-  # Intersect BEC zones and format the dataset
+  # check if bgc label already exisits, otherwise intersect BEC zones and format the dataset
+  if("MAP_LABEL"  %in% names(mpts)){
+
+    mpts = mpts |>
+      dplyr::select(-.data$MAP_LABEL)
+  }
+
   tpts <- sf::st_join(mpts, bec[, "MAP_LABEL"])
 
   tpts <- tpts |>
