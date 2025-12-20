@@ -21,7 +21,7 @@ prep_model_tps <- function(
     covars = NULL,
     out_dir = NULL,
     outname = "model_input_pts.rds") {
-  # check inputs
+
 
   # check if prepped_points is a csv object
   if (!is.data.frame(prepped_points)) {
