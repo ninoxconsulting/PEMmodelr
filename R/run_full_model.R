@@ -307,13 +307,18 @@ run_full_model <- function(
   utils::write.csv(ref_acc, fs::path(out_dir, paste0(model_name, "_acc_results.csv")))
 
   if(report){
+    cli::cli_alert_info("generating model report")
+
+    out_dir <- file.path(out_dir)
+
     # generate model accuracy report
     model_report(model_name, bec, train_data, fuzz_matrix, covars,
                  use_neighbours,extra_pts,
-                 mtry, min_n, ntrees,
-                 downsample_ratio, smote_ratio,
-                 nf_f_filter,
-                 out_dir,ref_acc)
+                 mtry, min_n, ntrees, nf_f_filter,
+                 smote_ratio, downsample_ratio,
+                 ref_acc,
+                 out_dir)
+
   }
 
   return(out_dir)
