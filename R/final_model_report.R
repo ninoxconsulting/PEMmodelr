@@ -53,6 +53,13 @@ model_report <- function(model_name, bec, train_data, fuzz_matrix, covars,
 
   RMD <- fs::path_package("PEMmodelr", "extdata/model_report.rmd")
 
+  # convert nf_f_filter to a true false value
+  if(is.null(nf_f_filter)){
+    nf_f_filter = FALSE
+  }else{
+    nf_f_filter = TRUE
+  }
+
   rmarkdown::render(RMD,
                     params = list(model_name = model_name,
                                   bec = bec,
