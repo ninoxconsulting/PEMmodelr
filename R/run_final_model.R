@@ -1,18 +1,18 @@
 #' Run the final model fit
 #'
-#' @param train_data A list of prepped data. Output of `prep_model_tps()`
-#' @param covars a character vector of covariates to include in the model
-#' @param ds_ratio numeric
-#' @param sm_ratio numeric
-#' @param model_bal the type of model to be run. This can be the base model or a balance model
-#' based on the best_balancing csv. Options include:"aspat_paf_theta.5" ,"aspat_paf_theta0" ,
-#' "aspat_paf_theta1" , "aspatial_sum", "spat_paf_theta.5" , "spat_paf_theta0", "spat_paf_theta1",
-#' "spatial_sum", "overall"
+#' @param model_name A character string to define the model. Default will use balance combination
+#' @param bgc_pts_subzone Datasets list with all formatted training data. Output of prep_model_tps()
+#' @param bec A character with the BEC label to use. FOr example "ICHmc1".
+#' @param covars A vector with the names of covariates to use. These match raster names.
 #' @param extra_pts logical. If TRUE, extra points will be included. Default is FALSE.
-#' @param report logical. If TRUE, a report will be generated.
-#' @param out_dir root level out directory. A sub-folder will be created per
-#' model type (i.e "fnf" or "bgc level)
-#'
+#' @param mtry numeric. This is the output based on output of hyperparamter model tuning (default = ??)
+#' @param min_n numeric. This is the output based on output of hyperparamter model tuning (default = ??)
+#' @param ntrees numeric. Number of trees to use in random forest model. Default is 151.
+#' @param downsample_ratio A vector of numeric downsampling values (10 - 100), NA if not using
+#' @param smote_ratio A vector of numeric downsampling values (0.1 - 0.9), NA if not using
+#' @param report TRUE/FALSE: if you want to produce a pdf report summarising model inputs and model outputs
+#' this is used to determine optimum theta values
+#' @param out_dir OPTIONAL: only needed if detailed_output = TRUE. location of filepath there detailed outputs to be stored
 #' @returns a list of dataframes with final models
 #' @export
 #'
@@ -21,82 +21,124 @@
 #' run_final_model(train_data, covars, model_bal = "base", report = FALSE, out_dir)
 #' }
 run_final_model <- function (
-    train_data,
+    model_name = "final",
+    bgc_pts_subzone,
+    bec = bec,
     covars = covars,
-    model_bal  =  "base",
-    extra_pts = FALSE,
+    extra_pts = TRUE,
+    mtry = mtry,
+    min_n = min_n,
+    ntrees = 151,
+    downsample_ratio = FALSE,
+    smote_ratio = FALSE,
     report = FALSE,
-    out_dir = NA,
-    ds_ratio = NA,
-    sm_ratio = NA
+    out_dir = NA
 ){
 
-  final_bgc <- lapply(names(train_data), function(i) {
+  # # testing lines
+  #
+  # bec <- "ICHmc1" #"ESSFwv" "ICHmc2"
+  # out_bgc_dir <- fs::path(out_dir, bec)
+  # # read best tune
+  # best_tune <- utils::read.csv(fs::path(out_bgc_dir, "best_tuning.csv"))
+  # mtry <- best_tune$mtry
+  # min_n <- best_tune$min_n
+  # model_name = "final"
+  # bgc_pts_subzone = bgc_pts_subzone
+  # covars = covars
+  # extra_pts = TRUE
+  # ntrees = 151
+  # downsample_ratio = FALSE
+  # smote_ratio = FALSE
+  # report = FALSE
+  # out_dir = out_bgc_dir
+  # # end testing
+  #
 
-    #i <- names(train_data[1])
+  # select the bec zone of interest
+  tdat <- bgc_pts_subzone[[bec]]
 
-    alldat <- train_data[[i]]
-
-    #create a subfolder for each BGC unit
-    out_bgc_dir = fs::path(out_dir, i)
-
-    # read in tuning
-    best_tune <- utils::read.csv(fs::path(out_bgc_dir, "best_tuning.csv"))
-    mtry <- best_tune$mtry
-    min_n <- best_tune$min_n
-
-
-    if(model_bal == "base") {
-
-      mbaldf <- data.frame(balance = "base", ds_ratio = NA_integer_, sm_ratio = NA_integer_)
-
-    } else {
-
-      # read in balance
-      best_balance <- utils::read.csv(fs::path(out_bgc_dir, "best_balancing.csv"))
-
-      mbaldf <- best_balance |>
-        dplyr::filter(.data$maxmetric == model_bal) |>
-        dplyr::select( .data$balance, .data$ds_ratio, .data$sm_ratio)
-    }
-
-    final_data <- alldat |>
-      dplyr::filter(.data$position == "Orig") |>
-      dplyr::select(.data$mapunit1, dplyr::any_of(covars))
-
-    if(extra_pts){
-      extras <- alldat |>
-        dplyr::filter(.data$data_type == "incidental") |>
-        dplyr::filter(is.na(.data$mapunit2))|>
-        dplyr::select(.data$mapunit1, dplyr::any_of(covars))
-
-      final_data <- rbind(final_data, extras)
-    }
-
-    final_data <- final_data[stats::complete.cases(final_data[, 2:length(final_data)]), ]
-
-    final_model <- final_model(
-      final_data,
-      mtry = mtry,
-      min_n = min_n,
-      ds_ratio = mbaldf$ds_ratio,
-      sm_ratio = mbaldf$sm_ratio
+  tdat <- tdat |>
+    dplyr::select(
+      .data$id, .data$X , .data$Y, .data$mapunit1, .data$mapunit2, .data$position, .data$data_type,
+      .data$transect_id, .data$tid, .data$slice, dplyr::any_of(covars)
     )
 
-    # Output model
-    cli::cli_alert_success("model fit complete and written to {out_bgc_dir}")
-    saveRDS(final_model, fs::path(out_bgc_dir, paste0("final_model_", model_bal, ".rds")))
+  final_data <- tdat |>
+    dplyr::filter(.data$position == "Orig") |>
+    dplyr::select(.data$mapunit1, dplyr::any_of(covars))
 
-    # generate a report if requests
+  if(extra_pts){
+    extras <- tdat |>
+      dplyr::filter(.data$data_type == "incidental") |>
+      #dplyr::filter(is.na(.data$mapunit2))|>
+      dplyr::select(.data$mapunit1, dplyr::any_of(covars))
 
-    if(report){
-       final_model_report(mbaldf, final_data, final_model, out_bgc_dir)
-    }
+    final_data <- rbind(final_data, extras)
+  }
 
-  })
+
+  final_data <- final_data[stats::complete.cases(final_data[, 2:length(final_data)]), ]
+
+  # smote data if specified
+  #smote_ratio = FALSE
+
+  if (!smote_ratio == FALSE) {
+    cli::cli_alert_success("smoting data")
+    smote_recipe <- recipes::recipe(mapunit1 ~ ., data = final_data) |>
+      # recipes::update_role(tid, new_role = "id variable") |>
+      themis::step_upsample(mapunit1, over_ratio = smote_ratio) |>
+      recipes::prep()
+    final_data <- recipes::juice(smote_recipe)
+  }
+
+  final_data <- final_data[stats::complete.cases(final_data[, 2:length(final_data)]), ]
+  #
+  #     MU_count <- final_data |> dplyr::count(.data$mapunit1) |> dplyr::filter(.data$n > 10)
+  #
+  #     final_data <- final_data |> dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1)  |>
+  #       droplevels()
+  #
+
+  # Use corresponding downscale ratio
+  if (downsample_ratio == FALSE) {
+    null_recipe <- recipes::recipe(mapunit1 ~ ., data = final_data) #|>
+    # recipes::update_role(.data$tid, new_role = "id variable")
+    print("no downsampling")
+  } else {
+    null_recipe <- recipes::recipe(mapunit1 ~ ., data = final_data) |>
+      #recipes::update_role(.data$tid, new_role = "id variable") |>
+      themis::step_downsample(mapunit1, under_ratio = downsample_ratio)
+    print("yes downsampling")
+  }
+
+
+  #set up model params
+  randf_spec <- parsnip::rand_forest(mtry = mtry, min_n = min_n, trees = ntrees) |>
+    parsnip::set_mode("classification") |>
+    parsnip::set_engine("ranger", importance = "permutation", splitrule = "gini", verbose = FALSE, probability = TRUE)
+
+  # apply model to the workflow
+  pem_workflow <- workflows::workflow() |>
+    workflows::add_recipe(null_recipe) |>
+    workflows::add_model(randf_spec)
+
+
+  print("running final PEM model")
+
+  final_model <- parsnip::fit(pem_workflow, final_data)
+
+
+  # Output model
+  cli::cli_alert_success("model fit complete and written to {out_dir}")
+  saveRDS(final_model, fs::path(out_dir, paste0("final_model_", model_name, ".rds")))
+
+  # generate a report if requested
+
+  # if(report){
+  #    final_model_report(mbaldf, final_data, final_model, out_bgc_dir)
+  #  }
+
+
   return(TRUE)
 }
-
-
-
-

@@ -5,36 +5,45 @@
 \title{Run the final model fit}
 \usage{
 run_final_model(
-  train_data,
+  model_name = "final",
+  bgc_pts_subzone,
+  bec = bec,
   covars = covars,
-  model_bal = "base",
-  extra_pts = FALSE,
+  extra_pts = TRUE,
+  mtry = mtry,
+  min_n = min_n,
+  ntrees = 151,
+  downsample_ratio = FALSE,
+  smote_ratio = FALSE,
   report = FALSE,
-  out_dir = NA,
-  ds_ratio = NA,
-  sm_ratio = NA
+  out_dir = NA
 )
 }
 \arguments{
-\item{train_data}{A list of prepped data. Output of \code{prep_model_tps()}}
+\item{model_name}{A character string to define the model. Default will use balance combination}
 
-\item{covars}{a character vector of covariates to include in the model}
+\item{bgc_pts_subzone}{Datasets list with all formatted training data. Output of prep_model_tps()}
 
-\item{model_bal}{the type of model to be run. This can be the base model or a balance model
-based on the best_balancing csv. Options include:"aspat_paf_theta.5" ,"aspat_paf_theta0" ,
-"aspat_paf_theta1" , "aspatial_sum", "spat_paf_theta.5" , "spat_paf_theta0", "spat_paf_theta1",
-"spatial_sum", "overall"}
+\item{bec}{A character with the BEC label to use. FOr example "ICHmc1".}
+
+\item{covars}{A vector with the names of covariates to use. These match raster names.}
 
 \item{extra_pts}{logical. If TRUE, extra points will be included. Default is FALSE.}
 
-\item{report}{logical. If TRUE, a report will be generated.}
+\item{mtry}{numeric. This is the output based on output of hyperparamter model tuning (default = ??)}
 
-\item{out_dir}{root level out directory. A sub-folder will be created per
-model type (i.e "fnf" or "bgc level)}
+\item{min_n}{numeric. This is the output based on output of hyperparamter model tuning (default = ??)}
 
-\item{ds_ratio}{numeric}
+\item{ntrees}{numeric. Number of trees to use in random forest model. Default is 151.}
 
-\item{sm_ratio}{numeric}
+\item{downsample_ratio}{A vector of numeric downsampling values (10 - 100), NA if not using}
+
+\item{smote_ratio}{A vector of numeric downsampling values (0.1 - 0.9), NA if not using}
+
+\item{report}{TRUE/FALSE: if you want to produce a pdf report summarising model inputs and model outputs
+this is used to determine optimum theta values}
+
+\item{out_dir}{OPTIONAL: only needed if detailed_output = TRUE. location of filepath there detailed outputs to be stored}
 }
 \value{
 a list of dataframes with final models

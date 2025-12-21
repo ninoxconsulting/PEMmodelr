@@ -172,15 +172,16 @@ run_full_model <- function(
       ref_train <- rbind(ref_train, extras)
     }
 
-    # #smoteratio = 1
-    # if (smoteratio) {
-    #   smote_recipe <- recipes::recipe(mapunit1 ~ ., data = ref_train) |>
-    #     recipes::update_role(tid, new_role = "id variable") |>
-    #     themis::step_upsample(mapunit1, over_ratio = smoteratio) |>
-    #     recipes::prep()
-    #   ref_train <- recipes::juice(smote_recipe)
-    #
-    # }
+
+    if (!smote_ratio == FALSE) {
+      cli::cli_alert_success("smoting data")
+      smote_recipe <- recipes::recipe(mapunit1 ~ ., data = ref_train) |>
+        recipes::update_role(tid, new_role = "id variable") |>
+        themis::step_upsample(mapunit1, over_ratio = smote_ratio) |>
+        recipes::prep()
+      ref_train <- recipes::juice(smote_recipe)
+
+    }
 
     MU_count <- ref_train |>
       dplyr::count(.data$mapunit1) |>
