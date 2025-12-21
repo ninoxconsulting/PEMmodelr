@@ -102,7 +102,7 @@ run_full_model <- function(
       .data$transect_id, .data$tid, .data$slice, dplyr::any_of(covars)
     )
 
-  tdat <- tdat[stats::complete.cases(tdat[, 9:length(tdat)]), ]
+  tdat <- tdat[stats::complete.cases(tdat[, 11:length(tdat)]), ]
 
   train_data <- droplevels(tdat)
 
@@ -147,11 +147,17 @@ run_full_model <- function(
     #k = levels(slices)[2]
 
     # create training set
-    ref_train <- .create_training_set(ref_dat, k)
-    #  dplyr::select(-.data$data_type)
+    #ref_train <- .create_training_set(ref_dat, k)
+    ref_train <- ref_dat |>
+      dplyr::filter(!.data$slice %in% k) |>
+      dplyr::filter(is.na(.data$mapunit2)) |> # train only on pure calls
+      dplyr::filter(.data$position == "Orig") |>
+      dplyr::select(-.data$id, -.data$slice, -.data$mapunit2, -.data$position, -.data$transect_id,
+                    -.data$data_type, -.data$X, -.data$Y) |>
+      droplevels()
 
-    ref_train <- ref_train |>
-      dplyr::select(-.data$data_type, -.data$X, -.data$Y)
+    #ref_train <- ref_train |>
+    #    dplyr::select(-.data$data_type, -.data$X, -.data$Y)
 
     # drop the nf points for training dataset
     allmunits <- unique(ref_train$mapunit1)
@@ -159,7 +165,6 @@ run_full_model <- function(
 
     ref_train <- ref_train |>
       dplyr::filter(!.data$mapunit1 %in% nfmunits)
-
 
     if(extra_pts){
       extras <- extras |>
@@ -187,28 +192,22 @@ run_full_model <- function(
       droplevels()
 
     # create a test set
-    ref_test <- .create_test_set(ref_dat, k, use_neighbours, MU_count)|>
-      dplyr::select(-.data$data_type)
 
-    # ref_test <- ref_test |>
-    #
-    # #.create_test_set <- function(ref_dat, k, use_neighbours, MU_count) {
-    #   if (use_neighbours) {
-    #     # test set
-    #     ref_test <- ref_dat |>
-    #       dplyr::filter(.data$slice %in% k) #|>
-    #       #dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
-    #       #droplevels()
-    #   } else {
-    #     ref_test <- ref_dat |>
-    #       dplyr::filter(.data$slice %in% k) |>
-    #      # dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
-    #       dplyr::filter(.data$position == "Orig") |>
-    #       droplevels()
-    #   }
+    ref_test <- ref_dat |>
+      dplyr::filter(.data$slice %in% c(k)) |>
+      dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
+      droplevels()
 
-    # return(ref_test)
-    #}
+    # if not using neighbour then select only Origin data position
+    if (use_neighbours == FALSE) {
+
+      print("only using the Orig locations")
+
+      ref_test <- ref_test %>%
+        dplyr::filter(position == "Orig")
+    }
+
+    ref_test_all <- ref_test
     ref_test_transect_no <- length(unique(ref_test$tid))
 
     ref_id <- ref_test |> dplyr::select(.data$id, .data$X, .data$Y, .data$mapunit1, .data$mapunit2)
@@ -249,6 +248,7 @@ run_full_model <- function(
 
     preds <- terra::predict(ref_mod, ref_test)
     preds <- cbind(preds, ref_id)
+
     #preds <- tolower(preds)
     #mutate_if(is.factor,as.character) %>%  distinct()
 
