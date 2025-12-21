@@ -30,7 +30,7 @@ knitr::opts_chunk$set(echo = TRUE, cache=FALSE,
 
 
 
-```{r cars}
+```{r params, echo = FALSE}
 model_name <- params$model_name
 bec <- params$bec
 train_data <- params$train_data
