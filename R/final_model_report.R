@@ -38,12 +38,15 @@ final_model_report <- function(mbaldf, final_data, final_model, out_bgc_dir, ext
 
 
 
+
 model_report <- function(model_name, bec, train_data, fuzz_matrix, covars,
                          use_neighbours,extra_pts,
                          mtry, min_n, ntrees,
-                         downsample_ratio, smote_ratio,
                          nf_f_filter,
-                         out_dir,ref_acc){
+                         smote_ratio,
+                         downsample_ratio,
+                         ref_acc,out_dir){
+
 
  # ifelse(!dir.exists(file.path(out_bgc_dir)),
 #         dir.create(file.path(out_bgc_dir)), FALSE)
@@ -61,11 +64,13 @@ model_report <- function(model_name, bec, train_data, fuzz_matrix, covars,
                                   mtry =mtry,
                                   min_n = min_n,
                                   ntrees = ntrees,
-                                  downsample_ratio = downsample_ratio,
-                                  smote_ratio = smote_ratio,
                                   nf_f_filter = nf_f_filter,
-                                  out_dir = out_dir,
-                                  ref_acc= ref_acc))               ## where to save the report
+                                  smote_ratio = smote_ratio,
+                                  downsample_ratio = downsample_ratio,
+                                  ref_acc= ref_acc,
+                                  out_dir = out_dir),
+                    output_dir = out_dir)## where to save the report
+
 
   ## open the report
   #browseURL(paste0(paste0(out_bgc_dir,"/","final_model_report.html")))

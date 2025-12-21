@@ -41,21 +41,11 @@ extra_pts<- params$extra_pts
 mtry <- params$mtry
 min_n <- params$min_n
 ntrees<- params$ntrees
+nf_f_filter <- params$nf_f_filter
 downsample_ratio<- params$downsample_ratio
 smote_ratio<- params$smote_ratio
-nf_f_filter <- params$nf_f_filter
-out_dir<- params$outdir
 ref_acc<- params$ref_acc
-# 
-# ## testing lines
-#  train_data
-# baseout <- baseout
-# mtry 
-# min_n
-# fuzz_matrix
-# use_neighbours
-# out_dir <- out_bgc_dir
-# #
+out_dir<- params$out_dir
 
 ```
 
@@ -136,8 +126,6 @@ The following training points and frequency of points were used in the model
 ```
 
 ## Comparison of leave-one-out model results
-
-  ## Comparison of leave-one-out model results
 
 ```{r, LOO overall accuracy with confidence intervals, echo = FALSE, eval = TRUE}
   #Compare the LOO metrics to test metrics to see model fit
