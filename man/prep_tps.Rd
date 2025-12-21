@@ -41,10 +41,15 @@ Prepare cleaned training points for model runs
 \dontrun{
 tpts <- prep_tps(
   allpts = sf::st_read(
-    fs::path(PEMprepr::read_fid()$dir_20105030_attributed_field_data$path_rel,
-    "allpoints_att.gpkg")),
-  mapkey = read.csv(fs::path(PEMprepr::read_fid()$dir_3010_inputs$path_rel,
-  "mapunitkey_final.csv")),
+    fs::path(
+      PEMprepr::read_fid()$dir_20105030_attributed_field_data$path_rel,
+      "allpoints_att.gpkg"
+    )
+  ),
+  mapkey = read.csv(fs::path(
+    PEMprepr::read_fid()$dir_3010_inputs$path_rel,
+    "mapunitkey_final.csv"
+  )),
   covarkey = covarkey,
   attribute = "mapunit_ss_realm",
   bec = sf::st_read(fs::path(PEMprepr::read_fid()$dir_1010_vector$path_rel, "bec.gpkg")),
