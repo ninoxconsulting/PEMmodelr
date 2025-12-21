@@ -38,24 +38,34 @@ final_model_report <- function(mbaldf, final_data, final_model, out_bgc_dir, ext
 
 
 
-model_report <- function(train_data, fuzz_matrix, use_neighbours,
-                         mtry, min_n, baseout, out_bgc_dir, extra_pts){
+model_report <- function(model_name, bec, train_data, fuzz_matrix, covars,
+                         use_neighbours,extra_pts,
+                         mtry, min_n, ntrees,
+                         downsample_ratio, smote_ratio,
+                         nf_f_filter,
+                         out_dir,ref_acc){
 
-  ifelse(!dir.exists(file.path(out_bgc_dir)),
-         dir.create(file.path(out_bgc_dir)), FALSE)
+ # ifelse(!dir.exists(file.path(out_bgc_dir)),
+#         dir.create(file.path(out_bgc_dir)), FALSE)
 
   RMD <- fs::path_package("PEMmodelr", "extdata/model_report.rmd")
 
   rmarkdown::render(RMD,
-                    params = list(train_data = train_data,
+                    params = list(model_name = model_name,
+                                  bec = bec,
+                                  train_data = train_data,
                                   fuzz_matrix = fuzz_matrix,
+                                  covars = covars,
                                   use_neighbours = use_neighbours,
-                                  mtry = mtry,
+                                  extra_pts = extra_pts,
+                                  mtry =mtry,
                                   min_n = min_n,
-                                  baseout = baseout,
-                                  out_bgc_dir = out_bgc_dir,
-                                  extra_pts = extra_pts),
-                    output_dir = out_bgc_dir)                ## where to save the report
+                                  ntrees = ntrees,
+                                  downsample_ratio = downsample_ratio,
+                                  smote_ratio = smote_ratio,
+                                  nf_f_filter = nf_f_filter,
+                                  out_dir = out_dir,
+                                  ref_acc= ref_acc))               ## where to save the report
 
   ## open the report
   #browseURL(paste0(paste0(out_bgc_dir,"/","final_model_report.html")))

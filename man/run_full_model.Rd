@@ -21,7 +21,7 @@ run_full_model(
   theta = c(0, 0.5, 1),
   report = FALSE,
   detailed_output = TRUE,
-  out_dir = out_bgc_dir
+  out_dir = NA
 )
 }
 \arguments{

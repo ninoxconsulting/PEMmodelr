@@ -60,7 +60,7 @@ run_full_model <- function(
     theta = c(0,0.5,1),
     report = FALSE,
     detailed_output = TRUE,
-    out_dir = out_bgc_dir) {
+    out_dir = NA) {
 
 
   # # ## testing lines
@@ -143,11 +143,10 @@ run_full_model <- function(
   #
 
   ref_acc <- purrr::map(levels(slices), function(k) {
-
+    # test line
     #k = levels(slices)[2]
 
     # create training set
-    #ref_train <- .create_training_set(ref_dat, k)
     ref_train <- ref_dat |>
       dplyr::filter(!.data$slice %in% k) |>
       dplyr::filter(is.na(.data$mapunit2)) |> # train only on pure calls
@@ -191,6 +190,8 @@ run_full_model <- function(
       dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
       droplevels()
 
+
+
     # create a test set
 
     ref_test <- ref_dat |>
@@ -198,13 +199,13 @@ run_full_model <- function(
       dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
       droplevels()
 
-    # if not using neighbour then select only Origin data position
+    # if not using neighbours then select only Origin data position
     if (use_neighbours == FALSE) {
 
       print("only using the Orig locations")
 
-      ref_test <- ref_test %>%
-        dplyr::filter(position == "Orig")
+      ref_test <- ref_test |>
+        dplyr::filter(.data$position == "Orig")
     }
 
     ref_test_all <- ref_test
@@ -212,7 +213,7 @@ run_full_model <- function(
 
     ref_id <- ref_test |> dplyr::select(.data$id, .data$X, .data$Y, .data$mapunit1, .data$mapunit2)
     ref_id <- ref_id |>
-      dplyr::rename("x" = X, 'y' = Y)
+      dplyr::rename("x" = .data$X, 'y' = .data$Y)
 
     # Define recipe and model
     if (downsample_ratio == FALSE) {
@@ -264,18 +265,18 @@ run_full_model <- function(
 
       test.pred <- preds |>
         dplyr::left_join(nf_df, by = c("x","y")) |>
-        dplyr::mutate(.pred_class = as.character(.pred_class),
-                      mapunit1 = as.character(mapunit1),
-                      mapunit2 = as.character(mapunit2))
+        dplyr::mutate(.pred_class = as.character(.data$.pred_class),
+                      mapunit1 = as.character(.data$mapunit1),
+                      mapunit2 = as.character(.data$mapunit2))
 
       test.pred <- test.pred |>
-        dplyr::mutate(.pred_class = ifelse(forest_nonforest ==  1,  "nonfor", .pred_class)) |>
+        dplyr::mutate(.pred_class = ifelse(.data$forest_nonforest ==  1,  "nonfor", .data$.pred_class)) |>
         dplyr::mutate(
-          mapunit1 = ifelse(grepl("^[[:alpha:]]+$", mapunit1), "nonfor", mapunit1),
-          mapunit2 = ifelse(grepl("^[[:alpha:]]+$", mapunit2), "nonfor", mapunit2),
-          .pred_class = ifelse(grepl("^[[:alpha:]]+$", .pred_class)|.pred_class == "nonfor", "nonfor", .pred_class)
+          mapunit1 = ifelse(grepl("^[[:alpha:]]+$", .data$mapunit1), "nonfor", .data$mapunit1),
+          mapunit2 = ifelse(grepl("^[[:alpha:]]+$", .data$mapunit2), "nonfor", .data$mapunit2),
+          .pred_class = ifelse(grepl("^[[:alpha:]]+$", .data$.pred_class)|.data$.pred_class == "nonfor", "nonfor", .data$.pred_class)
         ) |>
-        dplyr::select(id,  mapunit1, mapunit2, .pred_class)
+        dplyr::select(.data$id,  .data$mapunit1, .data$mapunit2, .data$.pred_class)
 
     } else {
       # if not using nf filter then just use outputs
@@ -293,6 +294,7 @@ run_full_model <- function(
       saveRDS(pred_all, fs::path(out_dir, paste0("predictions_", k)))
     }
 
+    # calculate accuracy metrics and add other information for summary
     acc <- acc_metrics(pred_all, fuzz_matrix = fuzz_matrix, theta = theta) |>
       dplyr::mutate(
         slice = k,
@@ -301,13 +303,18 @@ run_full_model <- function(
       )
   }) |> dplyr::bind_rows()
 
+  # write out the combined acccuracy metrics for all slices
   utils::write.csv(ref_acc, fs::path(out_dir, paste0(model_name, "_acc_results.csv")))
 
-  # if(report){
-  #   # generate model accuracy report
-  #   model_report(train_data, fuzz_matrix, use_neighbours,
-  #                mtry, min_n, baseout, out_bgc_dir)
-  # }
+  if(report){
+    # generate model accuracy report
+    model_report(model_name, bec, train_data, fuzz_matrix, covars,
+                 use_neighbours,extra_pts,
+                 mtry, min_n, ntrees,
+                 downsample_ratio, smote_ratio,
+                 nf_f_filter,
+                 out_dir,ref_acc)
+  }
 
   return(out_dir)
 
