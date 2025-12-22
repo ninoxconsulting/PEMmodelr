@@ -32,6 +32,8 @@ run_predict_map <- function(
     cov_dir = fs::path(PEMprepr::read_fid()$dir_1020_covariates$path_rel, "5m"),
     tile_dir = fs::path(PEMprepr::read_fid()$dir_30_model$path_rel, "tiles"),
     bec_shp = sf::st_read(fs::path(PEMprepr::read_fid()$dir_1010_vector$path_rel, "bec.gpkg"), quiet = TRUE)) {
+
+
   # set a list of all sub models to run (ie. BGC folders)
   submods <- basename(fs::dir_ls(model_dir, type = "directory"))
 
