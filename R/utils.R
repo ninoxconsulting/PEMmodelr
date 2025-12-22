@@ -133,14 +133,6 @@ combine_balance_outputs <- function(out_bgc_dir) {
 
 
 
-
-
-
-
-
-
-
-
 get_tiles <- function(tile_dir, template, tile_size) {
   if (!dir.exists(file.path(tile_dir))) {
     dir.create(file.path(tile_dir))
