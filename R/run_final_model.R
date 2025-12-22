@@ -20,7 +20,7 @@
 #' \dontrun{
 #' run_final_model(train_data, covars, model_bal = "base", report = FALSE, out_dir)
 #' }
-run_final_model <- function (
+run_final_model <- function(
     model_name = "final",
     bgc_pts_subzone,
     bec = bec,
@@ -32,9 +32,7 @@ run_final_model <- function (
     downsample_ratio = FALSE,
     smote_ratio = FALSE,
     report = FALSE,
-    out_dir = NA
-){
-
+    out_dir = NA) {
   # # testing lines
   #
   # bec <- "ICHmc1" #"ESSFwv" "ICHmc2"
@@ -60,7 +58,7 @@ run_final_model <- function (
 
   tdat <- tdat |>
     dplyr::select(
-      .data$id, .data$X , .data$Y, .data$mapunit1, .data$mapunit2, .data$position, .data$data_type,
+      .data$id, .data$X, .data$Y, .data$mapunit1, .data$mapunit2, .data$position, .data$data_type,
       .data$transect_id, .data$tid, .data$slice, dplyr::any_of(covars)
     )
 
@@ -68,10 +66,10 @@ run_final_model <- function (
     dplyr::filter(.data$position == "Orig") |>
     dplyr::select(.data$mapunit1, dplyr::any_of(covars))
 
-  if(extra_pts){
+  if (extra_pts) {
     extras <- tdat |>
       dplyr::filter(.data$data_type == "incidental") |>
-      #dplyr::filter(is.na(.data$mapunit2))|>
+      # dplyr::filter(is.na(.data$mapunit2))|>
       dplyr::select(.data$mapunit1, dplyr::any_of(covars))
 
     final_data <- rbind(final_data, extras)
@@ -79,9 +77,6 @@ run_final_model <- function (
 
 
   final_data <- final_data[stats::complete.cases(final_data[, 2:length(final_data)]), ]
-
-  # smote data if specified
-  #smote_ratio = FALSE
 
   if (!smote_ratio == FALSE) {
     cli::cli_alert_success("smoting data")
@@ -93,7 +88,7 @@ run_final_model <- function (
   }
 
   final_data <- final_data[stats::complete.cases(final_data[, 2:length(final_data)]), ]
-  #
+
   #     MU_count <- final_data |> dplyr::count(.data$mapunit1) |> dplyr::filter(.data$n > 10)
   #
   #     final_data <- final_data |> dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1)  |>
@@ -107,13 +102,12 @@ run_final_model <- function (
     print("no downsampling")
   } else {
     null_recipe <- recipes::recipe(mapunit1 ~ ., data = final_data) |>
-      #recipes::update_role(.data$tid, new_role = "id variable") |>
+      # recipes::update_role(.data$tid, new_role = "id variable") |>
       themis::step_downsample(mapunit1, under_ratio = downsample_ratio)
     print("yes downsampling")
   }
 
-
-  #set up model params
+  # set up model params
   randf_spec <- parsnip::rand_forest(mtry = mtry, min_n = min_n, trees = ntrees) |>
     parsnip::set_mode("classification") |>
     parsnip::set_engine("ranger", importance = "permutation", splitrule = "gini", verbose = FALSE, probability = TRUE)
@@ -122,7 +116,6 @@ run_final_model <- function (
   pem_workflow <- workflows::workflow() |>
     workflows::add_recipe(null_recipe) |>
     workflows::add_model(randf_spec)
-
 
   print("running final PEM model")
 
@@ -135,10 +128,13 @@ run_final_model <- function (
 
   # generate a report if requested
 
-  # if(report){
-  #    final_model_report(mbaldf, final_data, final_model, out_bgc_dir)
-  #  }
-
+  if (isTRUE(report)) {
+    final_model_report(
+      model_name, final_data, bec, covars, extra_pts,
+      mtry, min_n, ntrees, downsample_ratio, smote_ratio,
+      out_dir, final_model
+    )
+  }
 
   return(TRUE)
 }

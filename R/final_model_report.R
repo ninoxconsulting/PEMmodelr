@@ -15,7 +15,19 @@
 #' final_model_report(final_data, final_model, out_bgc_dir)
 #' }
 
-final_model_report <- function(mbaldf, final_data, final_model, out_bgc_dir, extra_pts){
+final_model_report <- function(model_name,
+                               final_data,
+                               bec,
+                               covars,
+                               extra_pts,
+                               mtry,
+                               min_n,
+                               ntrees,
+                               downsample_ratio,
+                               smote_ratio,
+                               out_dir,
+                               final_model
+                               ){
 
   ## create destination folder
   ifelse(!dir.exists(file.path(out_bgc_dir)),
@@ -25,12 +37,19 @@ final_model_report <- function(mbaldf, final_data, final_model, out_bgc_dir, ext
   RMD <- fs::path_package("PEMmodelr", "extdata/final_model_report.rmd")
 
   rmarkdown::render(RMD,
-                    params = list(mbaldf = mbaldf,
+                    params = list(model_name = model_name,
                                   final_data = final_data,
-                                  final_model = final_model,
-                                  out_bgc_dir = out_bgc_dir,
-                                  extra_pts = extra_pts),
-                    output_dir = out_bgc_dir)                ## where to save the report
+                                  bec= bec,
+                                  covars=  covars,
+                                  extra_pts=  extra_pts,
+                                  mtry=  mtry,
+                                  min_n=  min_n,
+                                  ntrees=  ntrees,
+                                  downsample_ratio=  downsample_ratio,
+                                  smote_ratio=  smote_ratio,
+                                  out_dir=  out_dir,
+                                  final_model= final_model),
+                    output_dir = out_dir)                ## where to save the report
 
   ## open the report
   #browseURL(paste0(paste0(out_bgc_dir,"/","final_model_report.html")))
