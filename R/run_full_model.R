@@ -106,12 +106,49 @@ run_full_model <- function(
 
   train_data <- droplevels(tdat)
 
-  # Add extra points if specified - extra points set - only on pure calls
 
+  # Add extra points if specified - extra points set - only on pure calls up to 10% of max unit
   if(extra_pts){
+
     extras <- train_data |>
       dplyr::filter(.data$data_type == "incidental") |>
       dplyr::filter(is.na(.data$mapunit2))
+
+    # check the ratio counts for train_data site series units
+
+    # identify and merge the nf points for training dataset
+    allmunits <- unique(train_data$mapunit1)
+    nfmunits <- grep(allmunits, pattern = "_\\d", value = TRUE, invert = TRUE)
+
+    # calculate which units can recieve extra points
+    train_data_counts <- train_data |>
+      dplyr::filter(data_type == "s1", is.na(.data$mapunit2), .data$position %in% c("Orig")) |>
+      dplyr::rowwise() |>
+      dplyr::mutate(mapunit1 = ifelse(mapunit1 %in% nfmunits, "nonfor", mapunit1 )) |>
+      dplyr::group_by(.data$mapunit1) |>
+      dplyr::summarize(n = dplyr::n()) |>
+      dplyr::ungroup() |>
+      dplyr::mutate(max = max(n)) |>
+      dplyr::group_by(mapunit1) |>
+      dplyr::mutate(ratio = n/max, s1_sample = round((max/10)- n,0)) |>
+      dplyr::filter(s1_sample>0, mapunit1 != "nonfor") |>
+      dplyr::ungroup() |>
+      dplyr::select(-ratio, -max, -n)
+
+    # add the extra values up to maximum of number allowed
+    extra_candidates <- extras |>
+      dplyr::filter(mapunit1 %in% train_data_counts$mapunit1) |>
+      dplyr::left_join(train_data_counts, by = "mapunit1") |>
+      dplyr::group_by(mapunit1) |>
+      dplyr::group_split() |>
+      purrr::map_dfr(function(df) {
+        # Safely sample the number of required rows
+        dplyr::slice_sample(df, n = min(nrow(df), df$s1_sample[1]))
+      }) |>
+      dplyr::ungroup()|>
+      dplyr::select(-s1_sample)
+
+    #extra.added <- extra_test |>  dplyr::count(mapunit1)
   }
 
   # training set - train only on pure calls
@@ -166,11 +203,12 @@ run_full_model <- function(
       dplyr::filter(!.data$mapunit1 %in% nfmunits)
 
     if(extra_pts){
-      extras <- extras |>
+      extra_candidates <- extra_candidates |>
         dplyr::select(dplyr::any_of(names(ref_train)))
 
-      ref_train <- rbind(ref_train, extras)
+      ref_train <- rbind(ref_train, extra_candidates)
     }
+
 
 
     if (!smote_ratio == FALSE) {
