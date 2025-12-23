@@ -128,13 +128,9 @@ run_final_model <- function(
 
   # generate a report if requested
 
-  if (isTRUE(report)) {
-    final_model_report(
-      model_name, final_data, bec, covars, extra_pts,
-      mtry, min_n, ntrees, downsample_ratio, smote_ratio,
-      out_dir, final_model
-    )
-  }
+    if(report){
+       final_model_report(mbaldf, final_data, final_model, out_bgc_dir, extra_pts)
+    }
 
   return(TRUE)
 }

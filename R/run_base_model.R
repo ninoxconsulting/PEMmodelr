@@ -73,7 +73,7 @@ run_base_model <- function(
     if(report){
     # generate model accuracy report
     model_report(train_data, fuzz_matrix, use_neighbours,
-                 mtry, min_n, baseout, out_bgc_dir)
+                 mtry, min_n, baseout, out_bgc_dir,extra_pts)
     }
   })
 

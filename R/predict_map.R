@@ -14,39 +14,96 @@
 #'
 #' @examples
 #' \dontrun{
-#' run_predict_map(
-#'   bec = "ICHmc1",
-#'   model = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel, "20_f",final_model_base.rds),
-#'   covars = utils::read.csv(fs::path(model_dir, "reduced_covariate_list.csv")) |> dplyr::pull(),
-#'   cov_dir = fs::path(PEMprepr::read_fid()$dir_1020_covariates$path_rel, "5m"),
-#'   bec_shp = sf::st_read(fs::path(PEMprepr::read_fid()$dir_1010_vector$path_rel, "bec.gpkg")),
-#'   tile_dir = fs::path(PEMprepr::read_fid()$dir_30_model$path_rel, "tiles"),
-#'   map_label = "final_map.tif",
-#'   out_dir = "temp"
-#' )
-#' }
-predict_map <- function(
-    bec = NA, model = NA, covars = NA,
-    cov_dir = fs::path(PEMprepr::read_fid()$dir_1020_covariates$path_rel, "5m"),
-    bec_shp = sf::st_read(fs::path(PEMprepr::read_fid()$dir_1010_vector$path_rel, "bec.gpkg")),
-    tile_dir = fs::path(PEMprepr::read_fid()$dir_30_model$path_rel, "tiles"),
-    map_label = "final_map.tif",
-    out_dir = NA) {
-  # bec
-  # bec_shp
-  # covars
-  # cov_dir
-  # tile_dir
-  # out_dir
-  # probability
-  # map_label = "map.tif"
-  # map_label = "map.tif"
-  #
+#' predict_map(rf_fit, out_dir, tile_dir, rstack, probability = FALSE)
+#'}
+predict_map <- function(model,
+                        out_dir,
+                        tile_dir,
+                        rstack,
+                        probability = FALSE,
+                        model_name_label = "map.tif") {
+  # extract fit
+  rf_fit <- workflows::extract_fit_engine(model)
+  .pred_class <- rf_fit$forest$levels
+  respNames <- as.data.frame(.pred_class) |>
+    dplyr::mutate(pred_no = seq(1:length(.pred_class)))
 
-  # define the output dir
+  utils::write.csv(respNames, file.path(out_dir, "response_names.csv"), row.names = TRUE)
 
-  if (!dir.exists(fs::path(out_dir))) {
-    dir.create(fs::path(out_dir))
+  ntiles <- list.files(tile_dir, full.names = T)
+  a <- 0 ## running total of area complete
+  ta <- sum(as.numeric(length(ntiles)))
+
+  for (i in ntiles) {
+    # i = ntiles[3]
+    out_name <- basename(i)
+
+    # create tracking message
+    t <- terra::rast(file.path(i)) ## read in tile
+    cli::cli_alert_info("working on {out_name} of {length(ntiles)}")
+    cli::cli_alert_info("... loading data ...")
+
+    # check if blank tile
+    if (all(is.na(unique(terra::values(t)))) == TRUE) {
+      cli::cli_alert_warning("Some variables with all NA values, skipping tile...")
+    } else {
+      # crop the raster stack to tile extent
+      tstack <- terra::crop(rstack, t)
+      # convert to dataframe
+      rsf <- as.data.frame(tstack)
+      # get xy values
+      # rsfxy <- terra::crds(tstack)
+
+      # check if all values in columns are NA (ie not in study area)
+      na_table <- as.data.frame(sapply(rsf, function(x) all(is.na(x))))
+
+      if (any(na_table[, 1] == TRUE)) {
+        cli::cli_alert_warning("Some variables with all NA values, skipping tile...")
+      } else {
+        # predict
+        pred <- terra::predict(tstack, rf_fit, na.rm = TRUE)
+
+        # write out probability layer
+        if (probability == TRUE) {
+          if (!dir.exists(file.path(out_dir, "probability"))) {
+            dir.create(file.path(out_dir, "probability"))
+          } else {
+            cli::cli_alert_info("probability dir exists")
+          }
+          terra::writeRaster(pred, file.path(out_dir, "probability", out_name), overwrite = TRUE)
+          cli::cli_alert_success("writing probability tile")
+        }
+
+        # write out best class
+        if (!dir.exists(file.path(out_dir, "best"))) {
+          dir.create(file.path(out_dir, "best"))
+        }
+
+        pdfxy <- as.data.frame(pred, xy = TRUE, cells = FALSE)
+        pdf <- pdfxy |> dplyr::select(-.data$x, -.data$y)
+        pdfid <- pdfxy |> dplyr::select(.data$x, .data$y)
+
+        best_class <- colnames(pdf)[apply(pdf[, 1:length(pdf)], 1, which.max)]
+
+        r_out <- cbind(pdfid, as.factor(best_class))
+        names(r_out) <- c("x", "y", ".pred_class")
+
+        ## change the text values to numeric values.
+        r_out <- dplyr::left_join(r_out, respNames, by = ".pred_class")
+        r_out <- r_out |> dplyr::select(-".pred_class")
+
+        cli::cli_alert_info("... exporting raster tiles...")
+
+        out <- tidyterra::as_spatraster(r_out, crs = "epsg:3005")
+
+        terra::writeRaster(out, fs::path(out_dir, "best", out_name), overwrite = TRUE)
+      }
+    }
+
+    ## * report progress -----
+    a <- a + 1
+    prog <- round(a / ta * 100, 0)
+    cli::cli_alert_info("{prog} % complete")
   }
 
   # set up raster stack
