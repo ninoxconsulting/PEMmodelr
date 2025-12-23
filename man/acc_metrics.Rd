@@ -4,7 +4,7 @@
 \alias{acc_metrics}
 \title{Calculate model accuracy metrics}
 \usage{
-acc_metrics(pred_data, fuzz_matrix, theta = 0.5)
+acc_metrics(pred_data, fuzz_matrix, theta = NULL)
 }
 \arguments{
 \item{pred_data}{a data.frame with mapunit1, mapunit2, and .pred columns}

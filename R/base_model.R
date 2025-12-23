@@ -4,7 +4,7 @@
 #' @param fuzz_matrix data table with fuzzy metrics
 #' @param mtry numeric. This is the output based on output of hyperparamter model tuning (default = ??)
 #' @param min_n numeric. This is the output based on output of hyperparamter model tuning (default = ??)
-#' @param use_neighbours if you want to incluse all neighbours in the calculation
+#' @param use_neighbours if you want to include all neighbours in the calculation
 #' @param extra_pts logical. If TRUE, extra points will be included. Default is FALSE.
 #' @param detailed_output OPTIONAL:TRUE/FALSE if you want to output all raw values this is used to determine optimum theta values
 #' @param out_dir OPTIONAL: only needed if detailed_output = TRUE. location of filepath there detailed outputs to be stored

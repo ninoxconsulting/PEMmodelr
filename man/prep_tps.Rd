@@ -13,7 +13,6 @@ prep_tps(
   covarkey = utils::read.csv(fs::path(PEMprepr::read_fid()$dir_30_model$path_rel,
     "covar_key.csv")),
   attribute = "mapunit_ss_realm",
-  extra_pts = FALSE,
   bec = sf::st_read(fs::path(PEMprepr::read_fid()$dir_1010_vector$path_rel, "bec.gpkg")),
   min_no = 10
 )
@@ -27,8 +26,6 @@ prep_tps(
 
 \item{attribute}{A character string matching the columns within the mapkey which fieldmap units will be matched to. The default
 is "mapunit_ss_realm" for forest model, and "mapunit_fnf" for forest non-forest model, and "mapunit_fnf" for non-forest model.}
-
-\item{extra_pts}{A Logical TRUE/FALSE to include extra points in the training dataset. Default is FALSE.}
 
 \item{bec}{A \code{sf} object with BEC zones. The default points to the BEC zones .gpkg in the standard workflow.}
 
@@ -44,13 +41,17 @@ Prepare cleaned training points for model runs
 \dontrun{
 tpts <- prep_tps(
   allpts = sf::st_read(
-    fs::path(PEMprepr::read_fid()$dir_20105030_attributed_field_data$path_rel,
-    "allpoints_att.gpkg")),
-  mapkey = read.csv(fs::path(PEMprepr::read_fid()$dir_3010_inputs$path_rel,
-  "mapunitkey_final.csv")),
+    fs::path(
+      PEMprepr::read_fid()$dir_20105030_attributed_field_data$path_rel,
+      "allpoints_att.gpkg"
+    )
+  ),
+  mapkey = read.csv(fs::path(
+    PEMprepr::read_fid()$dir_3010_inputs$path_rel,
+    "mapunitkey_final.csv"
+  )),
   covarkey = covarkey,
   attribute = "mapunit_ss_realm",
-  extra_pts = FALSE,
   bec = sf::st_read(fs::path(PEMprepr::read_fid()$dir_1010_vector$path_rel, "bec.gpkg")),
   min_no = 20
 )

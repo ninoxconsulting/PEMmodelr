@@ -7,7 +7,6 @@
 prep_model_tps(
   prepped_points = NULL,
   covars = NULL,
-  model_type = "fnf",
   out_dir = NULL,
   outname = "model_input_pts.rds"
 )
@@ -17,9 +16,6 @@ prep_model_tps(
 This is the output following \code{prep_tps()} function.}
 
 \item{covars}{A character string with the names of the covariates to be used in the model.}
-
-\item{model_type}{A character string to define the model type.
-Options are "fnf" (forest-nonforest), "f" (forest) or "nf" (nonoforest)}
 
 \item{out_dir}{A character string of the path to the output directory.}
 
@@ -35,7 +31,7 @@ Prepare prepped training points for model runs
 \dontrun{
 model_bgc <- prep_model_tps_bgc(
   prepped_points = tpts,
-  covars = reduced_vars, model_type = "f", out_dir = out_dir, outname = "model_input_pts.rds"
+  covars = reduced_vars, out_dir = out_dir, outname = "model_input_pts.rds"
 )
 }
 }

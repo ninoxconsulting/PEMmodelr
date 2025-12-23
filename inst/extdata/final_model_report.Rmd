@@ -2,8 +2,17 @@
 title: "final_model_report"
 output: html_document
 params:
-  mbaldf: mbaldf
+  model_name: model_name
   final_data: final_data
+  bec: bec
+  covars: covars
+  extra_pts: extra_pts
+  mtry: mtry
+  min_n: min_n
+  ntrees: ntrees
+  downsample_ratio: downsample_ratio
+  smote_ratio: smote_ratio
+  out_dir: out_dir
   final_model: final_model
   out_bgc_dir: out_bgc_dir
   extra_pts: extra_pts
@@ -19,20 +28,20 @@ knitr::opts_chunk$set(echo = TRUE, cache=FALSE,
 
 
 ```{r setup libs, echo = FALSE}
-## Load library
-# library(data.table)
-# library(rmarkdown)
-# library(knitr)
-# library(dplyr)
-# library(ggplot2)
-# library(vip)
 
-mbaldf <- params$mbaldf
+model_name <- params$model_name
 final_data <- params$final_data
-final_model <- params$final_model
-out_bgc_dir <- params$out_bgc_dir
+bec <- params$bec
+covars <- params$covars
 extra_pts <- params$extra_pts
-# 
+mtry <- params$mtry
+min_n <- params$min_n
+ntrees <- params$ntrees
+downsample_ratio <- params$downsample_ratio
+smote_ratio <- params$smote_ratio
+out_dir <- params$out_dir
+final_model <- params$final_model
+
 # ## testing lines
 #final_data <- final_data
 #final_model <- final_model
@@ -44,18 +53,30 @@ extra_pts <- params$extra_pts
 
 ```{r summary, echo = FALSE, include = TRUE}
 
-covs <- names(final_data)
-covs <- covs[-grep(covs, pattern = "mapunit1")]
+#covs <- names(final_data)
+#covs <- covs[-grep(covs, pattern = "mapunit1")]
 
 ```
 
 
-This model uses the following parameters: 
+This model uses the following parameters:
 
-* **balance option** : `r mbaldf$balance`
+* **model name:** `r model_name`
+* **bec unit:** `r bec`
 * **mapunit:** 'mapunit1'
-* **model covariates : ** `r covs`
-* **extra_pts:** `r extra_pts`
+* **model covariates : ** `r covars`
+* **extra_points:** `r extra_pts`
+* **mtry:** `r mtry`
+* **min_n:** `r min_n`
+* **ntrees:** `r ntrees`
+* **downsample_ratio:** `r downsample_ratio`
+* **smote_ratio:** `r smote_ratio`
+* **output directory:** `r out_dir`
+
+
+
+
+
 
 ## Response variable: 
 
@@ -81,13 +102,11 @@ trDat_sum <- trDat |>
 
 ggplot2::ggplot(trDat, ggplot2::aes(mapunit1)) +
   ggplot2::geom_bar() + 
-  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))+
-  colorspace::scale_fill_discrete_sequential(palette = "Light Grays")
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
 
 ggplot2::ggplot(trDatnf, ggplot2::aes(mapunit1)) +
   ggplot2::geom_bar() + 
-  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))+
-  colorspace::scale_fill_discrete_sequential(palette = "Light Grays")
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
 
 ```
 
@@ -101,6 +120,5 @@ final_fit  <- tune::extract_fit_parsnip(final_model)
 
 xx <- final_fit |>    vip::vip(num_features = 50)
 xx
-
 
 ```

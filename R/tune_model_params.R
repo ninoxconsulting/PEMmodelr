@@ -40,14 +40,14 @@ tune_model_params <- function(
     trDat <- prepped_points[[i]] |>
       dplyr::filter(.data$position %in% "Orig") |>
       select_pure_training() |>
-      dplyr::select(.data$mapunit1, .data$slice, dplyr::any_of(covars)) |>
+      dplyr::select(.data$mapunit1, .data$slice,.data$position,.data$data_type, dplyr::any_of(covars)) |>
       dplyr::mutate(slice = as.factor(.data$slice)) |>
       tidyr::drop_na() |>
       dplyr::mutate(mapunit1 = factor(.data$mapunit1)) |>
       droplevels()
 
-    # remove points with less than min_no points
-    trDat <- .filter_min_mapunits(trDat, min_no) |>
+    # remove points with less than min_no points, marked as extra pts so that only origin are filtered as min no.
+    trDat <- .filter_min_mapunits(trDat, min_no,  extra_pts = FALSE) |>
       droplevels()
 
     # tune the parameters

@@ -24,7 +24,7 @@ base_model(
 
 \item{min_n}{numeric. This is the output based on output of hyperparamter model tuning (default = ??)}
 
-\item{use_neighbours}{if you want to incluse all neighbours in the calculation}
+\item{use_neighbours}{if you want to include all neighbours in the calculation}
 
 \item{extra_pts}{logical. If TRUE, extra points will be included. Default is FALSE.}
 

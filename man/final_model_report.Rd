@@ -4,18 +4,31 @@
 \alias{final_model_report}
 \title{Generate Final Model summary}
 \usage{
-final_model_report(mbaldf, final_data, final_model, out_bgc_dir, extra_pts)
+final_model_report(
+  model_name,
+  final_data,
+  bec,
+  covars,
+  extra_pts,
+  mtry,
+  min_n,
+  ntrees,
+  downsample_ratio,
+  smote_ratio,
+  out_dir,
+  final_model
+)
 }
 \arguments{
-\item{mbaldf}{the balance options applied to model}
-
 \item{final_data}{final model training point}
+
+\item{extra_pts}{extra points to be included in the model}
 
 \item{final_model}{final model object}
 
-\item{out_bgc_dir}{output directory  This defaults to the project's root directory OR where the RMD script is saved.}
+\item{mbaldf}{the balance options applied to model}
 
-\item{extra_pts}{extra points to be included in the model}
+\item{out_bgc_dir}{output directory  This defaults to the project's root directory OR where the RMD script is saved.}
 }
 \description{
 This function takes in all the data needed to produce machine learning model.
