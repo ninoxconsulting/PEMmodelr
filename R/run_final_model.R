@@ -122,7 +122,7 @@ run_final_model <- function(
   final_model <- parsnip::fit(pem_workflow, final_data)
 
 
-  # Output model
+  #Output model
   cli::cli_alert_success("model fit complete and written to {out_dir}")
   saveRDS(final_model, fs::path(out_dir, paste0("final_model_", model_name, ".rds")))
 
