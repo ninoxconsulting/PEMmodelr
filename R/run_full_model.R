@@ -209,8 +209,6 @@ run_full_model <- function(
       ref_train <- rbind(ref_train, extra_candidates)
     }
 
-
-
     if (!smote_ratio == FALSE) {
       cli::cli_alert_success("smoting data")
       smote_recipe <- recipes::recipe(mapunit1 ~ ., data = ref_train) |>
