@@ -1,380 +1,218 @@
-#' Balance_optimisation_iteration
-#'
-#' @param train_data training data set
-#' @param ds_iterations downsampling values (vector of numbers:  10 - 100), NA if not using
-#' @param smote_iterations smote iterations (vector of numbers: 0.1 - 0.9), NA if not using
-#' @param use_neighbours to use all spatial adjoining values, default is FALSE
-#' @param fuzz_matrix fuzzy matrix
-#' @param mtry mtry from best params
-#' @param min_n mtry from best params
-#' @param extra_pts logical. If TRUE, extra points will be included. Default is FALSE.
-#' @param out_dir location where the balance output files will be stored
-#' @return outputs files directly to folder
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' balance_optimisation_iteration(train_data,
-#'   ds_iterations = c(30, 40, 50),
-#'   smote_iterations = c(0.5, 0.6, 0.7), use_neighbours = FALSE, fuzz_matrix = fmat,
-#'   out_dir = out_dir
-#' )
-#' }
-balance_optimisation <- function(train_data = train_data,
-                                 ds_iterations = ds_iterations,
-                                 smote_iterations = smote_iterations,
-                                 mtry = mtry,
-                                 min_n = min_n,
-                                 fuzz_matrix = fuzz_matrix,
-                                 out_dir = out_dir,
-                                 use_neighbours = FALSE,
-                                 extra_pts = FALSE) {
-  # # create a subfolder to store all balance outputs:
 
-  out_folder <- fs::path(out_dir, "balance")
-  if (!dir.exists(out_folder)) {
-    dir.create(out_folder)
+
+balance_optimisation <- function(bgc_pts_subzone, bec, fuzz_matrix, nf_f_filter,
+                                 covars, mtry, min_n, ntrees,
+                                 downsample_ratio = c(1, 5, 10),
+                                 smote_ratio = c(0.05, 0.1),
+                                 use_neighbours = TRUE,
+                                 extra_pts = TRUE,
+                                 extra_pts_ratio = 0.1,
+                                 detailed_output = TRUE,
+                                 out_dir = NA) {
+  # }
+
+
+  # downsample options (30, 20,10,9, 8, 7, 6, 5, - 1)
+  # smote ration = 0.05, 0.1
+  # extra pts = T/F
+  # neighbours = T/F
+  #
+  # # test lines
+  # bgc_pts_subzone <- bgc_pts_subzone
+  # bec <- bec
+  # fuzz_matrix <- fuzz_matrix
+  # covars <- covars
+  # mtry <- mtry
+  # min_n <- min_n
+  # ntrees <- 151
+  # nf_f_filter <- nf_f_filter
+  # detailed_output <- TRUE
+  # out_dir <- out_bgc_dir
+  # extra_pts <- TRUE
+  # extra_pts_ratio <- 0.1
+  # downsample_ratio <- c(1, 2, 3, 4, 5, 6, 7, 8, 910)
+  # smote_ratio <- c(0.05, 0.1)
+  # use_neighbours <- TRUE
+  #
+
+
+  # create a balance folder
+
+  out_dir_balance <- fs::path(out_dir, "balance")
+
+  if (!dir.exists(out_dir_balance)) {
+    fs::dir_create(out_dir_balance)
   }
 
-  # run base model
 
-  print("base model")
+  # generate base results
 
-  base_acc <- base_model(train_data, fuzz_matrix,
-    mtry = mtry, min_n = min_n,
-    use_neighbours = FALSE,
-    detailed_output = FALSE
+  base_model <- run_full_model(
+    model_name = "base_model", bgc_pts_subzone = bgc_pts_subzone, bec = bec,
+    fuzz_matrix = fuzz_matrix, covars = covars, use_neighbours = use_neighbours,
+    extra_pts = FALSE, mtry = mtry, min_n = min_n, ntrees = 151,
+    downsample_ratio = FALSE, smote_ratio = FALSE, nf_f_filter = nf_f_filter,
+    theta = NULL, report = FALSE, detailed_output = FALSE,
+    out_dir = out_dir_balance
   )
 
 
-  utils::write.csv(base_acc, file = fs::path(out_folder, "acc_base_model.csv"))
+  # generate smoting outputs (with and without extra pts)
+
+  # smote_ratio = c(0.05, 0.1)
+
+  smotes <- purrr::map(smote_ratio, function(s) {
+    # s <- smote_ratio[1]
+    # smote models with no extra
+    model_name <- paste0("sm", s)
+
+    run_full_model(
+      model_name = model_name, bgc_pts_subzone = bgc_pts_subzone, bec = bec,
+      fuzz_matrix = fuzz_matrix, covars = covars, use_neighbours = use_neighbours,
+      extra_pts = FALSE, mtry = mtry, min_n = min_n, ntrees = 151,
+      downsample_ratio = FALSE, smote_ratio = s, nf_f_filter = nf_f_filter,
+      theta = NULL, report = FALSE, detailed_output = FALSE,
+      out_dir = out_dir_balance
+    )
+
+    # s <- smote_ratio[1]
+    model_name <- paste0("sm", s, "_extra")
+
+    run_full_model(
+      model_name = model_name, bgc_pts_subzone = bgc_pts_subzone, bec = bec,
+      fuzz_matrix = fuzz_matrix, covars = covars, use_neighbours = use_neighbours,
+      extra_pts = TRUE, mtry = mtry, min_n = min_n, ntrees = 151,
+      downsample_ratio = FALSE, smote_ratio = s, nf_f_filter = nf_f_filter,
+      theta = NULL, report = FALSE, detailed_output = FALSE,
+      out_dir = out_dir_balance
+    )
+  })
 
 
-  # downsample and smote options
+  # generate downsamplin outputs (with and without extra pts)
 
-  if (unique(!is.na(ds_iterations) & !is.na(smote_iterations))) {
-    print("downsample and smote")
+  # downsample_ratio = c(1,5,10)
 
-    for (d in ds_iterations) {
-      # d = ds_iterations[1]
-      print(d)
+  ds <- purrr::map(downsample_ratio, function(d) {
+    # d <- downsample_ratio[1]
+    # downsample models with no extra
+    model_name <- paste0("ds", d)
 
-      for (i in smote_iterations) {
-        # i = smote_iterations[2]
-        print(i)
+    run_full_model(
+      model_name = model_name, bgc_pts_subzone = bgc_pts_subzone, bec = bec,
+      fuzz_matrix = fuzz_matrix, covars = covars, use_neighbours = use_neighbours,
+      extra_pts = FALSE, mtry = mtry, min_n = min_n, ntrees = 151,
+      downsample_ratio = d, smote_ratio = FALSE, nf_f_filter = nf_f_filter,
+      theta = NULL, report = FALSE, detailed_output = FALSE,
+      out_dir = out_dir_balance
+    )
 
-        # set up the parameters for balancing
-        downsample_ratio <- d # (0 - 100, Null = 1)
-        smote_ratio <- i # 0 - 1, 1 = complete smote
+    # downsample models with extras
+    model_name <- paste0("ds", d, "_extra")
 
-        balance_name <- paste0("ds_", downsample_ratio, "_sm_", smote_ratio)
-
-        # training set - train only on pure calls
-        ref_dat <- train_data |>
-          dplyr::mutate(
-            mapunit1 = as.factor(.data$mapunit1),
-            slice = as.factor(.data$slice)
-          ) |>
-          dplyr::select(-.data$tid)
-
-        cli::cli_alert_info("Training raw data models...")
-
-        munits <- unique(ref_dat$mapunit1)
-
-        # place holder to catch non-forest within a forest model
-
-        if ("forest" %in% munits) {
-          nf_mapunits <- NA
-        } else {
-          nf_mapunits <- grep(munits, pattern = "_\\d", value = TRUE, invert = TRUE)
-        }
-
-        slices <- unique(ref_dat$slice) |> droplevels()
-
-        # for all slices
-        ref_acc <- purrr::map(levels(slices), function(k) {
-          # k = levels(slices)[2]
-          label <- paste(d, i, k, sep = "-")
-          print(label)
-          # print(k)
-
-          # create training set
-          ref_train <- .create_training_set(ref_dat, k) |>
-            dplyr::select(-.data$data_type)
-
-          if (extra_pts) {
-            extras <- ref_dat |>
-              dplyr::filter(.data$data_type == "incidental") |>
-              dplyr::select(dplyr::any_of(names(ref_train)))
-
-            ref_train <- rbind(ref_train, extras)
-          }
-
-          MU_count <- ref_train |>
-            dplyr::count(.data$mapunit1) |>
-            dplyr::filter(.data$n > 10)
-
-          ref_train <- ref_train |>
-            dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
-            droplevels()
-
-          ref_test <- .create_test_set(ref_dat, k, use_neighbours, MU_count) |>
-            dplyr::select(-.data$data_type)
+    run_full_model(
+      model_name = model_name, bgc_pts_subzone = bgc_pts_subzone, bec = bec,
+      fuzz_matrix = fuzz_matrix, covars = covars, use_neighbours = use_neighbours,
+      extra_pts = TRUE, mtry = mtry, min_n = min_n, ntrees = 151,
+      downsample_ratio = d, smote_ratio = FALSE, nf_f_filter = nf_f_filter,
+      theta = NULL, report = FALSE, detailed_output = FALSE,
+      out_dir = out_dir_balance
+    )
+  })
 
 
-          ref_id <- ref_test |> dplyr::select(.data$id, .data$mapunit1, .data$mapunit2)
+  # generate downsamplin outputs (with and without extra pts)
+  # sm = smote_ratio
+  # ds = downsample_ratio
 
 
-          null_recipe <- recipes::recipe(mapunit1 ~ ., data = ref_train) |>
-            # recipes::update_role(tid, new_role = "id variable") |>
-            themis::step_downsample(mapunit1, under_ratio = downsample_ratio) |>
-            themis::step_smote(mapunit1, over_ratio = smote_ratio, neighbors = 4, skip = TRUE)
+  for (ds in downsample_ratio) {
+    # ds = downsample_ratio[1]
+    print(ds)
 
-          randf_spec <- parsnip::rand_forest(mtry = mtry, min_n = min_n, trees = 151) |>
-            parsnip::set_mode("classification") |>
-            parsnip::set_engine("ranger", importance = "permutation", verbose = FALSE)
-
-          pem_workflow <- workflows::workflow() |>
-            workflows::add_recipe(null_recipe) |>
-            workflows::add_model(randf_spec)
-
-          #######################################################
-          possibleError <- tryCatch(
-            parsnip::fit(pem_workflow, ref_train),
-            error = function(e) e
-          )
-          if (!inherits(possibleError, "error")) {
-            ref_mod <- possibleError
-
-            oob <- round(ref_mod$fit$fit$fit$prediction.error, 3)
-
-            # ref_mod <- fit(pem_workflow, ref_train)
-
-            preds <- terra::predict(ref_mod, ref_test)
-
-            pred_all <- cbind(ref_id, .pred_class = preds$.pred_class)
-
-            pred_all <- .prep_model_output(pred_all, nf_mapunits)
-
-            cli::cli_alert_info("generating accuracy metrics for slice: {k}")
-
-            acc <- acc_metrics(pred_all, fuzz_matrix = fuzz_matrix) |>
-              dplyr::mutate(
-                slice = k,
-                oob = oob
-              )
-          }
-        }) |> dplyr::bind_rows() # end of slice loop (downsample only )
-
-        utils::write.csv(ref_acc, file = fs::path(out_folder, paste0("acc_", balance_name, ".csv")))
-      } # end of smote iteration
-    } # end of downsample iteration
-  }
-
-  if (unique(!is.na(ds_iterations))) {
-    print("downsample only")
-
-    for (d in ds_iterations) {
-      # d = ds_iterations[1]
-      print(d)
-      # set up the parameters for balancing
-      downsample_ratio <- d # (0 - 100, Null = 1)
-      balance_name <- paste0("ds_", downsample_ratio)
-
-      # training set - train only on pure calls
-      ref_dat <- train_data |>
-        dplyr::mutate(
-          mapunit1 = as.factor(.data$mapunit1),
-          slice = as.factor(.data$slice)
-        ) |>
-        dplyr::select(-.data$tid)
-
-      cli::cli_alert_info("Training raw data models...")
-
-      munits <- unique(ref_dat$mapunit1)
-
-      # place holder to catch non-forest within a forest model
-      if ("forest" %in% munits) {
-        nf_mapunits <- NA
-      } else {
-        nf_mapunits <- grep(munits, pattern = "_\\d", value = TRUE, invert = TRUE)
-      }
-
-      slices <- unique(ref_dat$slice) |> droplevels()
-
-      ref_acc <- purrr::map(levels(slices), function(k) {
-        # k = levels(slices)[1]
-        label <- paste(d, k, sep = "-")
-        print(label)
-
-        # create training set
-        ref_train <- .create_training_set(ref_dat, k) |>
-          dplyr::select(-.data$data_type)
-
-        if (extra_pts) {
-          extras <- ref_dat |>
-            dplyr::filter(.data$data_type == "incidental") |>
-            dplyr::select(dplyr::any_of(names(ref_train)))
-
-          ref_train <- rbind(ref_train, extras)
-        }
-        MU_count <- ref_train |>
-          dplyr::count(.data$mapunit1) |>
-          dplyr::filter(.data$n > 10)
-
-        ref_train <- ref_train |>
-          dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
-          droplevels()
-
-        ref_test <- .create_test_set(ref_dat, k, use_neighbours, MU_count) |>
-          dplyr::select(-.data$data_type)
-
-        ref_id <- ref_test |> dplyr::select(.data$id, .data$mapunit1, .data$mapunit2)
-
-        null_recipe <- recipes::recipe(mapunit1 ~ ., data = ref_train) |>
-          # recipes::update_role(tid, new_role = "id variable") |>
-          themis::step_downsample(mapunit1, under_ratio = downsample_ratio)
-
-        randf_spec <- parsnip::rand_forest(mtry = mtry, min_n = min_n, trees = 151) |>
-          parsnip::set_mode("classification") |>
-          parsnip::set_engine("ranger", importance = "permutation", verbose = FALSE)
-
-        pem_workflow <- workflows::workflow() |>
-          workflows::add_recipe(null_recipe) |>
-          workflows::add_model(randf_spec)
-
-        #######################################################
-        possibleError <- tryCatch(
-          parsnip::fit(pem_workflow, ref_train),
-          error = function(e) e
-        )
-        if (!inherits(possibleError, "error")) {
-          ref_mod <- parsnip::fit(pem_workflow, ref_train)
-          oob <- round(ref_mod$fit$fit$fit$prediction.error, 3)
-
-          preds <- terra::predict(ref_mod, ref_test)
-
-          pred_all <- cbind(ref_id, .pred_class = preds$.pred_class)
-
-          pred_all <- .prep_model_output(pred_all, nf_mapunits)
-
-          cli::cli_alert_info("generating accuracy metrics for slice:{ k }")
-
-          acc <- acc_metrics(pred_all, fuzz_matrix = fuzz_matrix) |>
-            dplyr::mutate(
-              slice = k,
-              oob = oob
-            )
-        } # end of error checking loop
-      }) |> dplyr::bind_rows() # end of slice loop (downsample only)
-
-      # extract results from sresults
-
-      utils::write.csv(ref_acc, file = fs::path(out_folder, paste0("acc_", balance_name, ".csv")))
-    } # end of downsample iteration only loop
-  }
-
-  if (unique(!is.na(smote_iterations))) {
-    # smote only
-    print("smote only")
-
-    for (i in smote_iterations) {
-      # i = smote_iterations[1]
-      print(i)
+    for (sm in smote_ratio) {
+      # sm = smote_ratio[2]
+      print(sm)
 
       # set up the parameters for balancing
-      smote_ratio <- i # 0 - 1, 1 = complete smote
-      balance_name <- paste0("sm_", smote_ratio)
+      # dsratio <- d # (0 - 100, Null = 1)
+      # smote_ratio <- i # 0 - 1, 1 = complete smote
 
-      # training set - train only on pure calls
-      ref_dat <- train_data |>
-        dplyr::mutate(
-          mapunit1 = as.factor(.data$mapunit1),
-          slice = as.factor(.data$slice)
-        ) |>
-        dplyr::select(-.data$tid)
+      model_name <- paste0("ds", ds, "_sm", sm, "_extra")
+      print(model_name)
 
-      cli::cli_alert_info("Training raw data models...")
+      run_full_model(
+        model_name = model_name, bgc_pts_subzone = bgc_pts_subzone, bec = bec,
+        fuzz_matrix = fuzz_matrix, covars = covars, use_neighbours = use_neighbours,
+        extra_pts = TRUE, mtry = mtry, min_n = min_n, ntrees = 151,
+        downsample_ratio = ds, smote_ratio = sm, nf_f_filter = nf_f_filter,
+        theta = NULL, report = FALSE, detailed_output = FALSE,
+        out_dir = out_dir_balance
+      )
+    }
+  } # end of ds and smote loop
 
-      munits <- unique(ref_dat$mapunit1)
 
-      if ("forest" %in% munits) {
-        nf_mapunits <- NA
-      } else {
-        nf_mapunits <- grep(munits, pattern = "_\\d", value = TRUE, invert = TRUE)
-      }
 
-      slices <- unique(ref_dat$slice) |> droplevels()
+  # combine all metrics and select best balance optio
 
-      # for all slices
-      ref_acc <- purrr::map(levels(slices), function(k) {
-        # k = levels(slices)[2]
-        label <- paste(i, k, sep = "-")
-        print(label)
+  alldata_list <- list.files(file.path(out_dir_balance), full.names = TRUE, pattern = "acc_", recursive = TRUE)
+  # remove files with no information
+  data_list <- alldata_list[file.info(alldata_list)$size > 10]
 
-        # create training set
-        ref_train <- .create_training_set(ref_dat, k) |>
-          dplyr::select(-.data$data_type)
+  aresults <- purrr::map(data_list, function(k) {
+    temp <- utils::read.csv(k)
+    temp <- temp |> dplyr::mutate(filename = paste(basename(k)))
+    temp
+  }) |> dplyr::bind_rows()
 
-        if (extra_pts) {
-          extras <- ref_dat |>
-            dplyr::filter(.data$data_type == "incidental") |>
-            dplyr::select(dplyr::any_of(names(ref_train)))
+  aresults <- aresults |> dplyr::mutate(balance = gsub(".csv", "", .data$filename))
 
-          ref_train <- rbind(ref_train, extras)
-        }
 
-        MU_count <- ref_train |>
-          dplyr::count(.data$mapunit1) |>
-          dplyr::filter(.data$n > 10)
+  # summaries into a single table with average plus unit accuracy metrics
 
-        ref_train <- ref_train |>
-          dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
-          droplevels()
+  # generate the average metrics
+  best_metrics <- aresults |>
+    dplyr::group_by(.data$balance) |>
+    dplyr::select(
+      .data$balance,
+      .data$spat_pa_theta_0, .data$spat_pa_theta_0.5, .data$spat_pa_theta_1,
+      .data$aspat_pa_theta_0, .data$aspat_pa_theta_0.5, .data$aspat_pa_theta_1
+    ) |>
+    dplyr::distinct() |>
+    dplyr::summarise(dplyr::across(dplyr::where(is.numeric), mean)) |>
+    dplyr::ungroup() |>
+    dplyr::rowwise() |>
+    dplyr::mutate(sum_acc = sum(dplyr::c_across(2:7), na.rm = T)) |>
+    dplyr::mutate(ave_acc = .data$sum_acc / 6)
 
-        ref_test <- .create_test_set(ref_dat, k, use_neighbours, MU_count) |>
-          dplyr::select(-.data$data_type)
 
-        ref_id <- ref_test |> dplyr::select(.data$id, .data$mapunit1, .data$mapunit2)
+  # generate the average result overall slices per mapunit and calculate the
+  # number of units which are above 65%
 
-        null_recipe <- recipes::recipe(mapunit1 ~ ., data = ref_train) |>
-          themis::step_smote(mapunit1, over_ratio = smote_ratio, neighbors = 4, skip = TRUE)
+  best_units <- aresults |>
+    dplyr::select(.data$balance, .data$mapunit1, .data$aspat_pa, .data$aspat_paf) |>
+    dplyr::group_by(.data$balance, .data$mapunit1) |>
+    dplyr::summarize(
+      unit.acc.pa = mean(.data$aspat_pa, na.rm = TRUE),
+      unit.acc.paf = mean(.data$aspat_paf, na.rm = TRUE),
+      no.classes = n()
+    )
 
-        randf_spec <- parsnip::rand_forest(mtry = mtry, min_n = min_n, trees = 151) |>
-          parsnip::set_mode("classification") |>
-          parsnip::set_engine("ranger", importance = "permutation", verbose = FALSE)
+  unit.acc <- best_units |>
+    dplyr::mutate(
+      good_units_pa = sum(.data$unit.acc.pa > 0.65, na.rm = TRUE),
+      good_units_paf = sum(.data$unit.acc.paf > 0.65, na.rm = TRUE)
+    ) |>
+    dplyr::group_by(.data$balance) |>
+    dplyr::select(c(-.data$mapunit1, -.data$unit.acc.pa, -.data$unit.acc.paf)) |>
+    dplyr::summarise(dplyr::across(dplyr::where(is.numeric), sum))
 
-        pem_workflow <- workflows::workflow() |>
-          workflows::add_recipe(null_recipe) |>
-          workflows::add_model(randf_spec)
+  best_metrics <- dplyr::left_join(best_metrics, unit.acc)
 
-        #######################################################
-        possibleError <- tryCatch(
-          parsnip::fit(pem_workflow, ref_train),
-          error = function(e) e
-        )
-        if (!inherits(possibleError, "error")) {
-          ref_mod <- possibleError
-          oob <- round(ref_mod$fit$fit$fit$prediction.error, 3)
-          preds <- terra::predict(ref_mod, ref_test)
+  utils::write.csv(best_metrics, file.path(out_dir_balance, "best_balancing.csv"))
 
-          pred_all <- cbind(ref_id, .pred_class = preds$.pred_class)
+  return(best_metrics)
+}
 
-          pred_all <- .prep_model_output(pred_all, nf_mapunits)
 
-          cli::cli_alert_info("generating accuracy metrics for slice:{ k }")
-
-          acc <- acc_metrics(pred_all, fuzz_matrix = fuzz_matrix) |>
-            dplyr::mutate(
-              slice = k,
-              oob = oob
-            )
-        }
-      }) |> dplyr::bind_rows() # end of slice loop (downsample only )
-
-      utils::write.csv(ref_acc, file = fs::path(out_folder, paste0("acc_", balance_name, ".csv")))
-    } # end of smote iteration
-  }
-
-  return(TRUE)
-} # end of function
