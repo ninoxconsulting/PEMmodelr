@@ -196,7 +196,7 @@ balance_optimisation <- function(bgc_pts_subzone, bec, fuzz_matrix, nf_f_filter,
     dplyr::summarize(
       unit.acc.pa = mean(.data$aspat_pa, na.rm = TRUE),
       unit.acc.paf = mean(.data$aspat_paf, na.rm = TRUE),
-      no.classes = n()
+      no.classes = dplyr::n()
     )
 
   unit.acc <- best_units |>
