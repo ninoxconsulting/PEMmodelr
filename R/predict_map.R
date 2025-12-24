@@ -1,6 +1,7 @@
 #' Generate maps from predicted model and output map or combined maps
 #'
 #' @param bec A character defining the MAP_LABEL zone to be modeled, i.e. "ICHmc1"
+#' @param model A character filepath to the model to be used in prediction
 #' @param covars A character vector of the covariates to use
 #' @param cov_dir A character defining the directory of the covariates
 #' @param bec_shp OPTIONAL: A sf object of the bec map, only needed for
@@ -19,7 +20,7 @@
 #'   model = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel, "20_f",final_model_base.rds),
 #'   covars = utils::read.csv(fs::path(model_dir, "reduced_covariate_list.csv")) |> dplyr::pull(),
 #'   cov_dir = fs::path(PEMprepr::read_fid()$dir_1020_covariates$path_rel, "5m"),
-#'   bec_shp = sf::st_read(fs::path(PEMprepr::read_fid()$dir_1010_vector$path_rel, "bec.gpkg"), quiet = TRUE),
+#'   bec_shp = sf::st_read(fs::path(PEMprepr::read_fid()$dir_1010_vector$path_rel, "bec.gpkg")),
 #'   tile_dir = fs::path(PEMprepr::read_fid()$dir_30_model$path_rel, "tiles"),
 #'   map_label = "final_map.tif",
 #'   out_dir = "temp"
@@ -28,9 +29,9 @@
 predict_map <- function(
     bec = NA,
     model = NA,
-    covars = utils::read.csv(fs::path(model_dir, "reduced_covariate_list.csv")) |> dplyr::pull(),
+    covars = NA,
     cov_dir = fs::path(PEMprepr::read_fid()$dir_1020_covariates$path_rel, "5m"),
-    bec_shp = sf::st_read(fs::path(PEMprepr::read_fid()$dir_1010_vector$path_rel, "bec.gpkg"), quiet = TRUE),
+    bec_shp = sf::st_read(fs::path(PEMprepr::read_fid()$dir_1010_vector$path_rel, "bec.gpkg")),
     tile_dir = fs::path(PEMprepr::read_fid()$dir_30_model$path_rel, "tiles"),
     map_label = "final_map.tif",
     out_dir = NA) {
