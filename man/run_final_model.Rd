@@ -10,6 +10,7 @@ run_final_model(
   bec = bec,
   covars = covars,
   extra_pts = TRUE,
+  extra_pts_ratio = 0.1,
   mtry = mtry,
   min_n = min_n,
   ntrees = 151,
@@ -29,6 +30,8 @@ run_final_model(
 \item{covars}{A vector with the names of covariates to use. These match raster names.}
 
 \item{extra_pts}{logical. If TRUE, extra points will be included. Default is FALSE.}
+
+\item{extra_pts_ratio}{numeric. If extra points are being used the ratio compared to the most common unit to which extra poitns will be added. The default is 0.1 or equivalent to 10\% of most ocmmon unit}
 
 \item{mtry}{numeric. This is the output based on output of hyperparamter model tuning (default = ??)}
 

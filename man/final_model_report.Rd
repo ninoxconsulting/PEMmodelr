@@ -20,15 +20,29 @@ final_model_report(
 )
 }
 \arguments{
+\item{model_name}{A character string to define the model. Default will use balance combination}
+
 \item{final_data}{final model training point}
 
-\item{extra_pts}{extra points to be included in the model}
+\item{bec}{A character with the BEC label to use. FOr example "ICHmc1".}
+
+\item{covars}{A vector with the names of covariates to use. These match raster names.}
+
+\item{extra_pts}{logical. If TRUE, extra points will be included. Default is FALSE.}
+
+\item{mtry}{numeric. This is the output based on output of hyperparamter model tuning (default = ??)}
+
+\item{min_n}{numeric. This is the output based on output of hyperparamter model tuning (default = ??)}
+
+\item{ntrees}{numeric. Number of trees to use in random forest model. Default is 151.}
+
+\item{downsample_ratio}{A vector of numeric downsampling values (10 - 100), NA if not using}
+
+\item{smote_ratio}{A vector of numeric downsampling values (0.1 - 0.9), NA if not using}
+
+\item{out_dir}{OPTIONAL: only needed if detailed_output = TRUE. location of filepath there detailed outputs to be stored}
 
 \item{final_model}{final model object}
-
-\item{mbaldf}{the balance options applied to model}
-
-\item{out_bgc_dir}{output directory  This defaults to the project's root directory OR where the RMD script is saved.}
 }
 \description{
 This function takes in all the data needed to produce machine learning model.

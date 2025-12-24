@@ -12,6 +12,7 @@ run_full_model(
   covars = covars,
   use_neighbours = FALSE,
   extra_pts = FALSE,
+  extra_pts_ratio = 0.1,
   mtry = mtry,
   min_n = min_n,
   ntrees = 151,
@@ -38,6 +39,8 @@ run_full_model(
 \item{use_neighbours}{TRUE/FALSE. Define if you want to include all neighbours in the calculation}
 
 \item{extra_pts}{logical. If TRUE, extra points will be included. Default is FALSE.}
+
+\item{extra_pts_ratio}{numeric. If extra points are being used the ratio compared to the most common unit to which extra poitns will be added. The default is 0.1 or equivalent to 10\% of most ocmmon unit}
 
 \item{mtry}{numeric. This is the output based on output of hyperparamter model tuning (default = ??)}
 
