@@ -7,6 +7,7 @@
 #' @param covars A vector with the names of covariates to use. These match raster names.
 #' @param use_neighbours TRUE/FALSE. Define if you want to include all neighbours in the calculation
 #' @param extra_pts logical. If TRUE, extra points will be included. Default is FALSE.
+#' @param extra_pts_ratio numeric. If extra points are being used the ratio compared to the most common unit to which extra poitns will be added. The default is 0.1 or equivalent to 10% of most ocmmon unit
 #' @param mtry numeric. This is the output based on output of hyperparamter model tuning (default = ??)
 #' @param min_n numeric. This is the output based on output of hyperparamter model tuning (default = ??)
 #' @param ntrees numeric. Number of trees to use in random forest model. Default is 151.
@@ -51,6 +52,7 @@ run_full_model <- function(
     covars = covars,
     use_neighbours = FALSE,
     extra_pts = FALSE,
+    extra_pts_ratio = 0.1,
     mtry = mtry,
     min_n = min_n,
     ntrees = 151,
@@ -122,31 +124,31 @@ run_full_model <- function(
 
     # calculate which units can recieve extra points
     train_data_counts <- train_data |>
-      dplyr::filter(data_type == "s1", is.na(.data$mapunit2), .data$position %in% c("Orig")) |>
+      dplyr::filter(.data$data_type == "s1", is.na(.data$mapunit2), .data$position %in% c("Orig")) |>
       dplyr::rowwise() |>
-      dplyr::mutate(mapunit1 = ifelse(mapunit1 %in% nfmunits, "nonfor", mapunit1 )) |>
+      dplyr::mutate(mapunit1 = ifelse(.data$mapunit1 %in% nfmunits, "nonfor", .data$mapunit1 )) |>
       dplyr::group_by(.data$mapunit1) |>
       dplyr::summarize(n = dplyr::n()) |>
       dplyr::ungroup() |>
-      dplyr::mutate(max = max(n)) |>
-      dplyr::group_by(mapunit1) |>
-      dplyr::mutate(ratio = n/max, s1_sample = round((max/10)- n,0)) |>
-      dplyr::filter(s1_sample>0, mapunit1 != "nonfor") |>
+      dplyr::mutate(max = max(.data$n)) |>
+      dplyr::group_by(.data$mapunit1) |>
+      dplyr::mutate(ratio = .data$n/.data$max, s1_sample = round((.data$max*extra_pts_ratio)- .data$n,0)) |>
+      dplyr::filter(.data$s1_sample>0, .data$mapunit1 != "nonfor") |>
       dplyr::ungroup() |>
-      dplyr::select(-ratio, -max, -n)
+      dplyr::select(-.data$ratio, -.data$max, -.data$n)
 
     # add the extra values up to maximum of number allowed
     extra_candidates <- extras |>
-      dplyr::filter(mapunit1 %in% train_data_counts$mapunit1) |>
+      dplyr::filter(.data$mapunit1 %in% train_data_counts$mapunit1) |>
       dplyr::left_join(train_data_counts, by = "mapunit1") |>
-      dplyr::group_by(mapunit1) |>
+      dplyr::group_by(.data$mapunit1) |>
       dplyr::group_split() |>
       purrr::map_dfr(function(df) {
         # Safely sample the number of required rows
         dplyr::slice_sample(df, n = min(nrow(df), df$s1_sample[1]))
       }) |>
       dplyr::ungroup()|>
-      dplyr::select(-s1_sample)
+      dplyr::select(-.data$s1_sample)
 
     #extra.added <- extra_test |>  dplyr::count(mapunit1)
   }
@@ -209,10 +211,12 @@ run_full_model <- function(
       ref_train <- rbind(ref_train, extra_candidates)
     }
 
+    ref_train <- droplevels(ref_train)
+
     if (!smote_ratio == FALSE) {
       cli::cli_alert_success("smoting data")
       smote_recipe <- recipes::recipe(mapunit1 ~ ., data = ref_train) |>
-        recipes::update_role(tid, new_role = "id variable") |>
+        recipes::update_role(.data$tid, new_role = "id variable") |>
         themis::step_upsample(mapunit1, over_ratio = smote_ratio) |>
         recipes::prep()
       ref_train <- recipes::juice(smote_recipe)
