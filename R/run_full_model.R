@@ -2,11 +2,12 @@
 #'
 #' @param model_name A character string to define the model. Default will use balance combination
 #' @param bgc_pts_subzone Datasets list with all formatted training data. Output of prep_model_tps()
-#' @param bec A character with the BEC label to use. FOr example "ICHmc1".
+#' @param bec A character with the BEC label to use. For example "ICHmc1".
 #' @param fuzz_matrix data table with fuzzy metrics.
 #' @param covars A vector with the names of covariates to use. These match raster names.
 #' @param use_neighbours TRUE/FALSE. Define if you want to include all neighbours in the calculation
 #' @param extra_pts logical. If TRUE, extra points will be included. Default is FALSE.
+#' @param extra_pts_ratio numeric. If extra points are being used the ratio compared to the most common unit to which extra points will be added. The default is 0.1 or equivalent to 10% of most common unit
 #' @param mtry numeric. This is the output based on output of hyperparamter model tuning (default = ??)
 #' @param min_n numeric. This is the output based on output of hyperparamter model tuning (default = ??)
 #' @param ntrees numeric. Number of trees to use in random forest model. Default is 151.
@@ -51,6 +52,7 @@ run_full_model <- function(
     covars = covars,
     use_neighbours = FALSE,
     extra_pts = FALSE,
+    extra_pts_ratio = 0.1,
     mtry = mtry,
     min_n = min_n,
     ntrees = 151,
@@ -106,12 +108,49 @@ run_full_model <- function(
 
   train_data <- droplevels(tdat)
 
-  # Add extra points if specified - extra points set - only on pure calls
 
+  # Add extra points if specified - extra points set - only on pure calls up to 10% of max unit
   if(extra_pts){
+
     extras <- train_data |>
       dplyr::filter(.data$data_type == "incidental") |>
       dplyr::filter(is.na(.data$mapunit2))
+
+    # check the ratio counts for train_data site series units
+
+    # identify and merge the nf points for training dataset
+    allmunits <- unique(train_data$mapunit1)
+    nfmunits <- grep(allmunits, pattern = "_\\d", value = TRUE, invert = TRUE)
+
+    # calculate which units can recieve extra points
+    train_data_counts <- train_data |>
+      dplyr::filter(.data$data_type == "s1", is.na(.data$mapunit2), .data$position %in% c("Orig")) |>
+      dplyr::rowwise() |>
+      dplyr::mutate(mapunit1 = ifelse(.data$mapunit1 %in% nfmunits, "nonfor", .data$mapunit1 )) |>
+      dplyr::group_by(.data$mapunit1) |>
+      dplyr::summarize(n = dplyr::n()) |>
+      dplyr::ungroup() |>
+      dplyr::mutate(max = max(.data$n)) |>
+      dplyr::group_by(.data$mapunit1) |>
+      dplyr::mutate(ratio = .data$n/.data$max, s1_sample = round((.data$max*extra_pts_ratio)- .data$n,0)) |>
+      dplyr::filter(.data$s1_sample>0, .data$mapunit1 != "nonfor") |>
+      dplyr::ungroup() |>
+      dplyr::select(-.data$ratio, -.data$max, -.data$n)
+
+    # add the extra values up to maximum of number allowed
+    extra_candidates <- extras |>
+      dplyr::filter(.data$mapunit1 %in% train_data_counts$mapunit1) |>
+      dplyr::left_join(train_data_counts, by = "mapunit1") |>
+      dplyr::group_by(.data$mapunit1) |>
+      dplyr::group_split() |>
+      purrr::map_dfr(function(df) {
+        # Safely sample the number of required rows
+        dplyr::slice_sample(df, n = min(nrow(df), df$s1_sample[1]))
+      }) |>
+      dplyr::ungroup()|>
+      dplyr::select(-.data$s1_sample)
+
+    #extra.added <- extra_test |>  dplyr::count(mapunit1)
   }
 
   # training set - train only on pure calls
@@ -166,17 +205,18 @@ run_full_model <- function(
       dplyr::filter(!.data$mapunit1 %in% nfmunits)
 
     if(extra_pts){
-      extras <- extras |>
+      extra_candidates <- extra_candidates |>
         dplyr::select(dplyr::any_of(names(ref_train)))
 
-      ref_train <- rbind(ref_train, extras)
+      ref_train <- rbind(ref_train, extra_candidates)
     }
 
+    ref_train <- droplevels(ref_train)
 
     if (!smote_ratio == FALSE) {
       cli::cli_alert_success("smoting data")
       smote_recipe <- recipes::recipe(mapunit1 ~ ., data = ref_train) |>
-        recipes::update_role(tid, new_role = "id variable") |>
+        recipes::update_role(.data$tid, new_role = "id variable") |>
         themis::step_upsample(mapunit1, over_ratio = smote_ratio) |>
         recipes::prep()
       ref_train <- recipes::juice(smote_recipe)

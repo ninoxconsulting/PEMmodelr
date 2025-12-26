@@ -107,32 +107,6 @@ select_pure_training <- function(tps) {
 }
 
 
-# combine into a single file:
-
-combine_balance_outputs <- function(out_bgc_dir) {
-  bal_dir <- fs::path(out_bgc_dir, "balance")
-
-  alldata_list <- list.files(file.path(bal_dir), full.names = TRUE, pattern = "acc_", recursive = TRUE)
-  # remove files with no information
-  data_list <- alldata_list[file.info(alldata_list)$size > 10]
-
-  aresults <- purrr::map(data_list, function(k) {
-    temp <- utils::read.csv(k)
-    temp <- temp |> dplyr::mutate(filename = paste(basename(k)))
-    temp
-  }) |> dplyr::bind_rows()
-
-
-  aresults <- aresults |> dplyr::mutate(balance = gsub(".csv", "", .data$filename))
-
-  return(aresults)
-}
-
-
-
-
-
-
 get_tiles <- function(tile_dir, template, tile_size) {
   if (!dir.exists(file.path(tile_dir))) {
     dir.create(file.path(tile_dir))

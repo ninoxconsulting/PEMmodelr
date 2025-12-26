@@ -2,51 +2,73 @@
 % Please edit documentation in R/balance_optimisation.R
 \name{balance_optimisation}
 \alias{balance_optimisation}
-\title{Balance_optimisation_iteration}
+\title{Balance Optimisation}
 \usage{
 balance_optimisation(
-  train_data = train_data,
-  ds_iterations = ds_iterations,
-  smote_iterations = smote_iterations,
-  mtry = mtry,
-  min_n = min_n,
-  fuzz_matrix = fuzz_matrix,
-  out_dir = out_dir,
-  use_neighbours = FALSE,
-  extra_pts = FALSE
+  bgc_pts_subzone,
+  bec,
+  fuzz_matrix,
+  nf_f_filter,
+  covars,
+  mtry,
+  min_n,
+  ntrees,
+  downsample_ratio = c(1, 5, 10),
+  smote_ratio = c(0.05, 0.1),
+  use_neighbours = TRUE,
+  extra_pts = TRUE,
+  extra_pts_ratio = 0.1,
+  detailed_output = FALSE,
+  out_dir = NA
 )
 }
 \arguments{
-\item{train_data}{training data set}
+\item{bgc_pts_subzone}{Datasets list with all formatted training data. Output of prep_model_tps()}
 
-\item{ds_iterations}{downsampling values (vector of numbers:  10 - 100), NA if not using}
+\item{bec}{A character with the BEC label to use. For example "ICHmc1".}
 
-\item{smote_iterations}{smote iterations (vector of numbers: 0.1 - 0.9), NA if not using}
+\item{fuzz_matrix}{data table with fuzzy metrics.}
 
-\item{mtry}{mtry from best params}
+\item{nf_f_filter}{A SpatRaster with binary forest (0) and nonforest (1)}
 
-\item{min_n}{mtry from best params}
+\item{covars}{A vector with the names of covariates to use. These match raster names.}
 
-\item{fuzz_matrix}{fuzzy matrix}
+\item{mtry}{numeric. This is the output based on output of hyperparamter model tuning (default = ??)}
 
-\item{out_dir}{location where the balance output files will be stored}
+\item{min_n}{numeric. This is the output based on output of hyperparamter model tuning (default = ??)}
 
-\item{use_neighbours}{to use all spatial adjoining values, default is FALSE}
+\item{ntrees}{numeric. Number of trees to use in random forest model. Default is 151.}
+
+\item{downsample_ratio}{A vector of numeric downsampling values (1-10).}
+
+\item{smote_ratio}{A vector of numeric downsampling values (0.1 - 0.9).}
+
+\item{use_neighbours}{TRUE/FALSE. Define if you want to include all neighbours in the calculation}
 
 \item{extra_pts}{logical. If TRUE, extra points will be included. Default is FALSE.}
+
+\item{extra_pts_ratio}{numeric. If extra points are being used the ratio compared to the most common unit to which extra points will be added. The default is 0.1 or equivalent to 10\% of most common unit}
+
+\item{detailed_output}{if full output is to be produced. Default is FALSE}
+
+\item{out_dir}{filepath location of output. A new folder labeled balance will be created as subfolder.}
 }
 \value{
-outputs files directly to folder
+a datatable of summary of best accuracy metric
 }
 \description{
-Balance_optimisation_iteration
+Balance Optimisation
 }
 \examples{
 \dontrun{
-balance_optimisation_iteration(train_data,
-  ds_iterations = c(30, 40, 50),
-  smote_iterations = c(0.5, 0.6, 0.7), use_neighbours = FALSE, fuzz_matrix = fmat,
-  out_dir = out_dir
-)
+bal_summary <- balance_optimisation(bgc_pts_subzone, bec, fuzz_matrix, nf_f_filter,
+covars, mtry, min_n, ntrees,
+downsample_ratio = c(1,2,3,4,5,6,7 10),
+smote_ratio = c(0.05, 0.1),
+use_neighbours = TRUE,
+extra_pts = TRUE,
+extra_pts_ratio = 0.1,
+detailed_output = FALSE,
+out_dir = outdir)
 }
 }

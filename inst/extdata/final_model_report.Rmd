@@ -42,12 +42,6 @@ smote_ratio <- params$smote_ratio
 out_dir <- params$out_dir
 final_model <- params$final_model
 
-# ## testing lines
-#final_data <- final_data
-#final_model <- final_model
-#out_bgc_dir = out_bgc_dir
-#mbaldf <- mbaldf
-
 ```
 
 
@@ -72,9 +66,6 @@ This model uses the following parameters:
 * **downsample_ratio:** `r downsample_ratio`
 * **smote_ratio:** `r smote_ratio`
 * **output directory:** `r out_dir`
-
-
-
 
 
 

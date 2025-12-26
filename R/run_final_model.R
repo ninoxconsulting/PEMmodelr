@@ -5,6 +5,7 @@
 #' @param bec A character with the BEC label to use. FOr example "ICHmc1".
 #' @param covars A vector with the names of covariates to use. These match raster names.
 #' @param extra_pts logical. If TRUE, extra points will be included. Default is FALSE.
+#' @param extra_pts_ratio numeric. If extra points are being used the ratio compared to the most common unit to which extra poitns will be added. The default is 0.1 or equivalent to 10% of most ocmmon unit
 #' @param mtry numeric. This is the output based on output of hyperparamter model tuning (default = ??)
 #' @param min_n numeric. This is the output based on output of hyperparamter model tuning (default = ??)
 #' @param ntrees numeric. Number of trees to use in random forest model. Default is 151.
@@ -26,6 +27,7 @@ run_final_model <- function(
     bec = bec,
     covars = covars,
     extra_pts = TRUE,
+    extra_pts_ratio = 0.1,
     mtry = mtry,
     min_n = min_n,
     ntrees = 151,
@@ -63,17 +65,58 @@ run_final_model <- function(
     )
 
   final_data <- tdat |>
-    dplyr::filter(.data$position == "Orig") |>
-    dplyr::select(.data$mapunit1, dplyr::any_of(covars))
+    dplyr::filter(.data$position %in% c("Orig", NA))|>
+    dplyr::select(.data$mapunit1,.data$mapunit2,.data$data_type,dplyr::any_of(covars))
 
-  if (extra_pts) {
-    extras <- tdat |>
+  if(extra_pts){
+
+    extras <- final_data |>
       dplyr::filter(.data$data_type == "incidental") |>
-      # dplyr::filter(is.na(.data$mapunit2))|>
-      dplyr::select(.data$mapunit1, dplyr::any_of(covars))
+      dplyr::filter(is.na(.data$mapunit2))
 
-    final_data <- rbind(final_data, extras)
+    # check the ratio counts for traindata site series units
+
+    # identify and merge the nf points for training dataset
+    allmunits <- unique(final_data$mapunit1)
+    nfmunits <- grep(allmunits, pattern = "_\\d", value = TRUE, invert = TRUE)
+
+    # calculate which units can recieve extra points
+    train_data_counts <- final_data |>
+      dplyr::filter(.data$data_type == "s1", is.na(.data$mapunit2)) |>
+      dplyr::rowwise() |>
+      dplyr::mutate(mapunit1 = ifelse(-.data$mapunit1 %in% nfmunits, "nonfor", -.data$mapunit1 )) |>
+      dplyr::group_by(.data$mapunit1) |>
+      dplyr::summarize(n = dplyr::n()) |>
+      dplyr::ungroup() |>
+      dplyr::mutate(max = .data$max(.data$n)) |>
+      dplyr::group_by(.data$mapunit1) |>
+      dplyr::mutate(ratio = .data$n/.data$max, s1_sample = round((.data$max*extra_pts_ratio)- .data$n,0)) |>
+      dplyr::filter(.data$s1_sample>0, -.data$mapunit1 != "nonfor") |>
+      dplyr::ungroup() |>
+      dplyr::select(-.data$ratio, -.data$max, -.data$n)
+
+    # add the extra values up to maximum of number allowed
+    extra_candidates <- extras |>
+      dplyr::filter(.data$mapunit1 %in% train_data_counts$mapunit1) |>
+      dplyr::left_join(train_data_counts, by = "mapunit1") |>
+      dplyr::group_by(.data$mapunit1) |>
+      dplyr::group_split() |>
+      purrr::map_dfr(function(df) {
+        # Safely sample the number of required rows
+        dplyr::slice_sample(df, n = min(nrow(df), df$s1_sample[1]))
+      }) |>
+      dplyr::ungroup()|>
+      dplyr::select(-.data$s1_sample)
+
+    final_data <- rbind(final_data, extra_candidates)
+    #extra.added <- extra_test |>  dplyr::count(mapunit1)
+
+    #}
   }
+
+  final_data <- final_data |>
+    dplyr::filter(is.na(.data$mapunit2)) |>
+    dplyr::select(-.data$mapunit2, -.data$data_type)
 
 
   final_data <- final_data[stats::complete.cases(final_data[, 2:length(final_data)]), ]
@@ -129,7 +172,18 @@ run_final_model <- function(
   # generate a report if requested
 
     if(report){
-       final_model_report(mbaldf, final_data, final_model, out_bgc_dir, extra_pts)
+       final_model_report(model_name,
+                          final_data,
+                          bec,
+                          covars,
+                          extra_pts,
+                          mtry,
+                          min_n,
+                          ntrees,
+                          downsample_ratio,
+                          smote_ratio,
+                          out_dir,
+                          final_model)
     }
 
   return(TRUE)
