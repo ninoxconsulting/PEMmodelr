@@ -30,7 +30,7 @@ run_full_model(
 
 \item{bgc_pts_subzone}{Datasets list with all formatted training data. Output of prep_model_tps()}
 
-\item{bec}{A character with the BEC label to use. FOr example "ICHmc1".}
+\item{bec}{A character with the BEC label to use. For example "ICHmc1".}
 
 \item{fuzz_matrix}{data table with fuzzy metrics.}
 
@@ -40,7 +40,7 @@ run_full_model(
 
 \item{extra_pts}{logical. If TRUE, extra points will be included. Default is FALSE.}
 
-\item{extra_pts_ratio}{numeric. If extra points are being used the ratio compared to the most common unit to which extra poitns will be added. The default is 0.1 or equivalent to 10\% of most ocmmon unit}
+\item{extra_pts_ratio}{numeric. If extra points are being used the ratio compared to the most common unit to which extra points will be added. The default is 0.1 or equivalent to 10\% of most common unit}
 
 \item{mtry}{numeric. This is the output based on output of hyperparamter model tuning (default = ??)}
 
