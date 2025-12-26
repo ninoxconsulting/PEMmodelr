@@ -1,5 +1,36 @@
-
-
+#' Balance Optimisation
+#'
+#' @param bgc_pts_subzone Datasets list with all formatted training data. Output of prep_model_tps()
+#' @param bec A character with the BEC label to use. For example "ICHmc1".
+#' @param fuzz_matrix data table with fuzzy metrics.
+#' @param nf_f_filter A SpatRaster with binary forest (0) and nonforest (1)
+#' @param covars A vector with the names of covariates to use. These match raster names.
+#' @param mtry numeric. This is the output based on output of hyperparamter model tuning (default = ??)
+#' @param min_n numeric. This is the output based on output of hyperparamter model tuning (default = ??)
+#' @param ntrees numeric. Number of trees to use in random forest model. Default is 151.
+#' @param downsample_ratio A vector of numeric downsampling values (1-10).
+#' @param smote_ratio A vector of numeric downsampling values (0.1 - 0.9).
+#' @param use_neighbours TRUE/FALSE. Define if you want to include all neighbours in the calculation
+#' @param extra_pts logical. If TRUE, extra points will be included. Default is FALSE.
+#' @param extra_pts_ratio numeric. If extra points are being used the ratio compared to the most common unit to which extra points will be added. The default is 0.1 or equivalent to 10% of most common unit
+#' @param detailed_output if full output is to be produced. Default is FALSE
+#' @param out_dir filepath location of output. A new folder labeled balance will be created as subfolder.
+#'
+#' @returns a datatable of summary of best accuracy metric
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' bal_summary <- balance_optimisation(bgc_pts_subzone, bec, fuzz_matrix, nf_f_filter,
+#' covars, mtry, min_n, ntrees,
+#' downsample_ratio = c(1,2,3,4,5,6,7 10),
+#' smote_ratio = c(0.05, 0.1),
+#' use_neighbours = TRUE,
+#' extra_pts = TRUE,
+#' extra_pts_ratio = 0.1,
+#' detailed_output = FALSE,
+#' out_dir = outdir)
+#' }
 balance_optimisation <- function(bgc_pts_subzone, bec, fuzz_matrix, nf_f_filter,
                                  covars, mtry, min_n, ntrees,
                                  downsample_ratio = c(1, 5, 10),
@@ -7,11 +38,8 @@ balance_optimisation <- function(bgc_pts_subzone, bec, fuzz_matrix, nf_f_filter,
                                  use_neighbours = TRUE,
                                  extra_pts = TRUE,
                                  extra_pts_ratio = 0.1,
-                                 detailed_output = TRUE,
+                                 detailed_output = FALSE,
                                  out_dir = NA) {
-  # }
-
-
   # downsample options (30, 20,10,9, 8, 7, 6, 5, - 1)
   # smote ration = 0.05, 0.1
   # extra pts = T/F
@@ -30,7 +58,7 @@ balance_optimisation <- function(bgc_pts_subzone, bec, fuzz_matrix, nf_f_filter,
   # out_dir <- out_bgc_dir
   # extra_pts <- TRUE
   # extra_pts_ratio <- 0.1
-  # downsample_ratio <- c(1, 2, 3, 4, 5, 6, 7, 8, 910)
+  # downsample_ratio <- c(1, 2, 3, 4, 5, 6, 7, 8, 9,10)
   # smote_ratio <- c(0.05, 0.1)
   # use_neighbours <- TRUE
   #
@@ -214,5 +242,3 @@ balance_optimisation <- function(bgc_pts_subzone, bec, fuzz_matrix, nf_f_filter,
 
   return(best_metrics)
 }
-
-
