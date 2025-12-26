@@ -2,12 +2,12 @@
 #'
 #' @param model_name A character string to define the model. Default will use balance combination
 #' @param bgc_pts_subzone Datasets list with all formatted training data. Output of prep_model_tps()
-#' @param bec A character with the BEC label to use. FOr example "ICHmc1".
+#' @param bec A character with the BEC label to use. For example "ICHmc1".
 #' @param fuzz_matrix data table with fuzzy metrics.
 #' @param covars A vector with the names of covariates to use. These match raster names.
 #' @param use_neighbours TRUE/FALSE. Define if you want to include all neighbours in the calculation
 #' @param extra_pts logical. If TRUE, extra points will be included. Default is FALSE.
-#' @param extra_pts_ratio numeric. If extra points are being used the ratio compared to the most common unit to which extra poitns will be added. The default is 0.1 or equivalent to 10% of most ocmmon unit
+#' @param extra_pts_ratio numeric. If extra points are being used the ratio compared to the most common unit to which extra points will be added. The default is 0.1 or equivalent to 10% of most common unit
 #' @param mtry numeric. This is the output based on output of hyperparamter model tuning (default = ??)
 #' @param min_n numeric. This is the output based on output of hyperparamter model tuning (default = ??)
 #' @param ntrees numeric. Number of trees to use in random forest model. Default is 151.
