@@ -20,6 +20,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Genevieve Perkins \email{gperkins@ninoxconsulting.ca} (\href{https://orcid.org/0000-0003-2663-5904}{ORCID})
   \item Will McKenzie \email{Will.MacKenzie@gov.bc.ca}
   \item Kiri Daust \email{kiri.daust@gov.bc.ca}
   \item Andy Teucher \email{andy@andyteucher.ca} (\href{https://orcid.org/0000-0002-7840-692X}{ORCID})

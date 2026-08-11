@@ -58,16 +58,7 @@ Generate maps from predicted model and output map or combined maps
 }
 \examples{
 \dontrun{
-run_predict_map(
-  bec = "ICHmc1",
-  model = fs::path(PEMprepr::read_fid()$dir_3020_draft$path_rel, "20_f",final_model_base.rds),
-  covars = utils::read.csv(fs::path(model_dir, "reduced_covariate_list.csv")) |> dplyr::pull(),
-  cov_dir = fs::path(PEMprepr::read_fid()$dir_1020_covariates$path_rel, "5m"),
-  bec_shp = sf::st_read(fs::path(PEMprepr::read_fid()$dir_1010_vector$path_rel, "bec.gpkg")),
-  tile_dir = fs::path(PEMprepr::read_fid()$dir_30_model$path_rel, "tiles"),
-  map_label = "final_map.tif",
-  out_dir = "temp"
-)
+predict_map(rf_fit, out_dir, tile_dir, rstack, probability = FALSE)
 }
 \dontrun{
 run_predict_map(
