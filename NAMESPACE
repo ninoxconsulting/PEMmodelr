@@ -3,6 +3,7 @@
 export(acc_metrics)
 export(balance_optimisation)
 export(base_model)
+export(calc_acc)
 export(final_map)
 export(final_model_report)
 export(generate_covar_key)
