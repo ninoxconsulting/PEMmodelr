@@ -114,9 +114,9 @@ run_full_model <- function(
       dplyr::filter(is.na(.data$mapunit2))
   }
 
-  # training set - train only on pure calls
+  # training set - train only on pure calls and original points (not neighbours
   ref_dat <- train_data |>
-    #dplyr::filter(!is.na(.data$slice)) |>
+    dplyr::filter(.data$data_type != "incidental") |>
     dplyr::mutate(
       mapunit1 = as.factor(.data$mapunit1),
       slice = as.factor(.data$slice)
@@ -158,12 +158,12 @@ run_full_model <- function(
     #ref_train <- ref_train |>
     #    dplyr::select(-.data$data_type, -.data$X, -.data$Y)
 
-    # drop the nf points for training dataset
-    allmunits <- unique(ref_train$mapunit1)
-    nfmunits <- grep(allmunits, pattern = "_\\d", value = TRUE, invert = TRUE)
-
-    ref_train <- ref_train |>
-      dplyr::filter(!.data$mapunit1 %in% nfmunits)
+    # # drop the nf points for training dataset
+    # allmunits <- unique(ref_train$mapunit1)
+    # nfmunits <- grep(allmunits, pattern = "_\\d", value = TRUE, invert = TRUE)
+    #
+    # ref_train <- ref_train |>
+    #   dplyr::filter(!.data$mapunit1 %in% nfmunits)
 
     if(extra_pts){
       extras <- extras |>
@@ -171,7 +171,6 @@ run_full_model <- function(
 
       ref_train <- rbind(ref_train, extras)
     }
-
 
     if (!smote_ratio == FALSE) {
       cli::cli_alert_success("smoting data")
@@ -190,7 +189,6 @@ run_full_model <- function(
     ref_train <- ref_train |>
       dplyr::filter(.data$mapunit1 %in% MU_count$mapunit1) |>
       droplevels()
-
 
 
     # create a test set
@@ -215,6 +213,7 @@ run_full_model <- function(
     ref_id <- ref_test |> dplyr::select(.data$id, .data$X, .data$Y, .data$mapunit1, .data$mapunit2)
     ref_id <- ref_id |>
       dplyr::rename("x" = .data$X, 'y' = .data$Y)
+
 
     # Define recipe and model
     if (downsample_ratio == FALSE) {
@@ -254,6 +253,54 @@ run_full_model <- function(
     #preds <- tolower(preds)
     #mutate_if(is.factor,as.character) %>%  distinct()
 
+
+    # if using the neighbours - need to subset the predictions to only the best option
+    if(use_neighbours == TRUE){
+
+      cli::cli_alert_info("using neighbours - selecting best prediction for each transect")
+
+      preds$row_id <- seq(1, nrow(preds), 1) # create and id cols to be used for subset
+
+      # get matching by unit 1 based on id (any of the adjacetn cells)
+      matching_map1 <- preds |>
+        mutate(.pred_class = as.character(.data$.pred_class),
+               mapunit1 = as.character(.data$mapunit1)) |>
+        dplyr::group_by(.data$id) |>
+        dplyr::filter(.data$.pred_class == .data$mapunit1) |>
+        dplyr::slice(1) |>
+        dplyr::ungroup()
+
+      # get matching by unit 2 based on id (any of the adjacetn cells)
+      matching_map2 <- preds |>
+        mutate(.pred_class = as.character(.data$.pred_class),
+               mapunit2 = as.character(.data$mapunit2)) |>
+        filter(!id %in% matching_map1$id) |>
+        dplyr::group_by(.data$id) |>
+        dplyr::filter(.data$.pred_class == .data$mapunit2) |>
+        dplyr::slice(1) |>
+        dplyr::ungroup()
+
+      best_preds <- bind_rows(matching_map1, matching_map2)
+
+      # get a subset for the remaining unmatched, currently grabs the 1st value.
+      # TODO: coudl be improved to add a better selection based on fuz metrics.. not high prioirity
+      unmatched <- preds |>
+        dplyr::filter(!.data$id %in% best_preds$id) |>
+        dplyr::group_by(.data$id) |>
+        dplyr::slice(1) |>
+        dplyr::ungroup()
+
+      best_preds <- bind_rows(best_preds, unmatched)
+
+      # subset the original dataset based on matching all columns of unmatched and best_preds
+
+      preds <- preds |>
+        filter(.data$row_id %in% best_preds$row_id) |>
+        select(-row_id)
+
+    }
+
+
     # if using the non-forest template filter then update the predictions and
     # mapunits base on binary template
 
@@ -263,7 +310,6 @@ run_full_model <- function(
       nf_df <- terra::as.data.frame(nf_f_filter, xy = T)
 
       # join the forest binary template to predictions by x and y ( # 0 = forest 1 = non-forest)
-
       test.pred <- preds |>
         dplyr::left_join(nf_df, by = c("x","y")) |>
         dplyr::mutate(.pred_class = as.character(.data$.pred_class),
@@ -280,8 +326,9 @@ run_full_model <- function(
         dplyr::select(.data$id,  .data$mapunit1, .data$mapunit2, .data$.pred_class)
 
     } else {
+
       # if not using nf filter then just use outputs
-      test.preds = preds
+      test.pred = preds
 
     }
     # harmonize factor levels
@@ -296,7 +343,8 @@ run_full_model <- function(
     }
 
     # calculate accuracy metrics and add other information for summary
-    acc <- acc_metrics(pred_all, fuzz_matrix = fuzz_matrix, theta = theta) |>
+    #acc <- acc_metrics(pred_all, fuzz_matrix = fuzz_matrix, theta = theta) |>
+    acc <- calc_acc(pred_all, fuzz_matrix = fuzz_matrix, theta = theta) |>
       dplyr::mutate(
         slice = k,
         oob = oob,
