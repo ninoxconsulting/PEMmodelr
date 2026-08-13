@@ -123,14 +123,14 @@ run_final_model <- function(
 
 
   #Output model
-  cli::cli_alert_success("model fit complete and written to {out_dir}")
+  cli::cli_alert_success("model fit complete and written to {out_bgc_dir}")
   saveRDS(final_model, fs::path(out_dir, paste0("final_model_", model_name, ".rds")))
 
   # generate a report if requested
 
-    if(report){
-       final_model_report(mbaldf, final_data, final_model, out_bgc_dir, extra_pts)
-    }
+    #if(report){
+    #   final_model_report(mbaldf, final_data, final_model, out_dir, extra_pts)
+    #}
 
   return(TRUE)
 }
