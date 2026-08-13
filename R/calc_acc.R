@@ -20,12 +20,8 @@
 #' }
 #
 calc_acc <- function(pred_data, fuzz_matrix = fuzz_matrix, theta = theta) {
-  # datapath <- "C:/Users/genev/Downloads/testdataforacc_metrics/"
-  # fuzz_matrix <- readRDS(file.path(datapath, "fuzz_matrix.RDS"))
-  # pred_data <- readRDS(file.path(datapath, "pred_all.RDS"))
-  # theta <- readRDS(file.path(datapath, "theta.RDS"))
 
-  # summary(pred_data)
+  # testing line
   #pred_data = pred_all
 
   # get a list of thetas to use
@@ -91,8 +87,12 @@ calc_acc <- function(pred_data, fuzz_matrix = fuzz_matrix, theta = theta) {
   asapt_p_correct <- as.data.frame(pmin(a.1, a.2)) |> dplyr::rename("aspat_p_correct" = .data$Freq)
   p.overlap <- apply(cbind(a.1, a.2), 1, min) / a.1
 
-  ## TODO - perhaps this can be a 0 not NA... leavign as NA for now
+  ## NOTE - perhaps this can be a 0 not NA... leavign as NA for now
   asapt_p <- as.data.frame(p.overlap) |> dplyr::rename("aspat_p" = .data$Freq)
+
+  # TODO : decided if you want to conver these to 0 or leave as NA.
+  asapt_p <- asapt_p |>
+    dplyr::mutate(aspat_p = ifelse(is.nan(aspat_p), 0, aspat_p))
 
   asat_out <- dplyr::left_join(asapt_p_correct, asapt_p, by = "mapunit1")
 
@@ -136,6 +136,10 @@ calc_acc <- function(pred_data, fuzz_matrix = fuzz_matrix, theta = theta) {
   aspat_pa <- as.data.frame(apply(cbind(map.opt, p.1 + p.f), 1, min) / (map.opt)) |>
     dplyr::rename("aspat_pa" = .data$Freq)
 
+  # TODO : decided if you want to conver these to 0 or leave as NA.
+  aspat_pa <- aspat_pa |>
+    dplyr::mutate(aspat_pa = ifelse(is.nan(aspat_pa), 0, aspat_pa))
+
   asapt_pa_correct <- dplyr::left_join(asapt_pa_correct, aspat_pa) |>
     dplyr::rename("mapunit1" = .data$Var1)
 
@@ -156,16 +160,21 @@ calc_acc <- function(pred_data, fuzz_matrix = fuzz_matrix, theta = theta) {
   fuzz.1 <- aggregate(fuzz.1 ~ mapunit1, data = non.matches, sum)
   # fuzz.1
 
-  # find fuzzy score from second call (non-matches only)
-  non.matches.2 <- non.matches[!is.na(non.matches$mapunit2), ]
-  non.matches.2$fuzz.2 <- apply(non.matches.2[, c(3, 4)], 1, FUN = function(x) fuzz.matrix[x[1], x[2]])
-  fuzz.2 <- aggregate(fuzz.2 ~ mapunit1, data = non.matches.2, sum)
-  # fuzz.2
-
-  # Collect them all up
+  # combine together the primary and secondary fuzzy scores
   wtf <- data.frame(mapunit1 = names(prim.agree.tally), matchy = prim.agree.tally)
   z.0 <- merge(wtf, fuzz.1, by = "mapunit1", all = TRUE)
-  z <- merge(z.0, fuzz.2, by = "mapunit1", all = TRUE)
+
+  # find fuzzy score from second call (non-matches only)
+  non.matches.2 <- non.matches[!is.na(non.matches$mapunit2), ]
+
+  if(nrow(non.matches.2) > 0) { ### IF THERE ARE NO NON_MATCHES
+    non.matches.2$fuzz.2 <- apply(non.matches.2[, c(3, 4)], 1, FUN = function(x) fuzz.matrix[x[1], x[2]])
+    fuzz.2 <- stats::aggregate(fuzz.2 ~ mapunit1, data = non.matches.2, sum)
+    # fuzz.2
+    z <- merge(z.0, fuzz.2, by = "mapunit1", all = TRUE)
+  } else {
+    z <- z.0
+  }
 
   # spat_paf matches
   spat_paf_correct <- data.frame(cbind(z, "spat_paf_correct" = rowSums(z[, -1], na.rm = TRUE))) |>
@@ -181,7 +190,14 @@ calc_acc <- function(pred_data, fuzz_matrix = fuzz_matrix, theta = theta) {
       spat_p = .data$spat_p_correct / .data$trans.tot,
       spat_pa = .data$spat_pa_correct / .data$trans.tot,
       spat_paf = .data$spat_paf_correct / .data$trans.tot
-    ) |>
+    )
+  # TODO : decided if you want to conver these to 0 or leave as NA.
+  out <- out |>
+    dplyr::mutate(spat_p = ifelse(is.nan(.data$spat_p), 0, .data$spat_p),
+           spat_pa = ifelse(is.nan(.data$spat_pa), 0, .data$spat_pa),
+           spat_paf = ifelse(is.nan(.data$spat_paf), 0, .data$spat_paf))
+
+  out <- out |>
     dplyr::ungroup() |>
     dplyr::mutate(
       spat_p_theta_0 = round(sum(.data$spat_p_correct) / .data$trans.sum, 3),
@@ -307,6 +323,11 @@ calc_acc <- function(pred_data, fuzz_matrix = fuzz_matrix, theta = theta) {
 
   aspat_paf <- data.frame(apply(cbind(map.opt, as.vector(updated.0)), 1, min) / map.opt) |>
     dplyr::rename("mapunit1" = .data$Var1, "aspat_paf" = .data$Freq)
+
+
+  # TODO : decided if you want to conver these to 0 or leave as NA.
+  aspat_paf <- aspat_paf |>
+    dplyr::mutate(aspat_paf = ifelse(is.nan(aspat_paf), 0, aspat_paf))
 
   asapt_out <- dplyr::left_join(asapt_out, aspat_paf_correct, join_by("mapunit1")) |>
     dplyr::left_join(aspat_paf, join_by("mapunit1"))
