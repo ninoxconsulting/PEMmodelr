@@ -104,6 +104,9 @@ run_full_model <- function(
 
   tdat <- tdat[stats::complete.cases(tdat[, 11:length(tdat)]), ]
 
+  # TODO: add check to make sure all fuzzy matrix combinations are present
+
+
   train_data <- droplevels(tdat)
 
   # Add extra points if specified - extra points set - only on pure calls
@@ -263,7 +266,7 @@ run_full_model <- function(
 
       # get matching by unit 1 based on id (any of the adjacetn cells)
       matching_map1 <- preds |>
-        mutate(.pred_class = as.character(.data$.pred_class),
+        dplyr::mutate(.pred_class = as.character(.data$.pred_class),
                mapunit1 = as.character(.data$mapunit1)) |>
         dplyr::group_by(.data$id) |>
         dplyr::filter(.data$.pred_class == .data$mapunit1) |>
@@ -272,15 +275,15 @@ run_full_model <- function(
 
       # get matching by unit 2 based on id (any of the adjacetn cells)
       matching_map2 <- preds |>
-        mutate(.pred_class = as.character(.data$.pred_class),
+        dplyr::mutate(.pred_class = as.character(.data$.pred_class),
                mapunit2 = as.character(.data$mapunit2)) |>
-        filter(!id %in% matching_map1$id) |>
+        dplyr::filter(!.data$id %in% matching_map1$id) |>
         dplyr::group_by(.data$id) |>
         dplyr::filter(.data$.pred_class == .data$mapunit2) |>
         dplyr::slice(1) |>
         dplyr::ungroup()
 
-      best_preds <- bind_rows(matching_map1, matching_map2)
+      best_preds <- dplyr::bind_rows(matching_map1, matching_map2)
 
       # get a subset for the remaining unmatched, currently grabs the 1st value.
       # TODO: coudl be improved to add a better selection based on fuz metrics.. not high prioirity
@@ -295,8 +298,8 @@ run_full_model <- function(
       # subset the original dataset based on matching all columns of unmatched and best_preds
 
       preds <- preds |>
-        filter(.data$row_id %in% best_preds$row_id) |>
-        select(-row_id)
+        dplyr::filter(.data$row_id %in% best_preds$row_id) |>
+        dplyr::select(-.data$row_id)
 
     }
 
